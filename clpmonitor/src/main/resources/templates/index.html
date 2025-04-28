@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Monitoramento de CLPs</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+    <div class="container1">
+        <h1>Monitoramento de CLPs</h1>
+
+        <h2>CLP 1 (Matriz de 28 bytes)</h2>
+        <div id="clp1-grid" class="grid"></div>
+        <button id="btn-atualizar-estoque">Atualizar Estoque</button>
+
+        <h2>CLP 2 a 4</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>CLP</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody id="clp-table">
+                <tr>
+                    <td>CLP 2</td>
+                    <td id="clp2">-</td>
+                </tr>
+                <tr>
+                    <td>CLP 3</td>
+                    <td id="clp3">-</td>
+                </tr>
+                <tr>
+                    <td>CLP 4</td>
+                    <td id="clp4">-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Expedição</h2>
+        <div id="expedicao-grid" class="expedicao-grid"></div>
+        <button id="btn-atualizar-expedicao">Atualizar Expedição</button>
+    </div>
+
+    <div class="container2">
+        <div class="clp-write-section" id="clp-write-container"
+            th:replace="~{fragments/formulario :: clp-write-fragment}">
+        </div>
+    </div>
+
+    <script>
+        // Botões para atualização manual
+        document.getElementById("btn-atualizar-estoque").addEventListener("click", () => {
+            fetch("/atualizar-estoque");
+        });
+
+        document.getElementById("btn-atualizar-expedicao").addEventListener("click", () => {
+            fetch("/atualizar-expedicao");
+        });
+
+        // SSE - Atualizações em tempo real
+        const eventSource = new EventSource('/clp-data-stream');
+
+        eventSource.addEventListener('clp1-data', function (event) {
+            const data = JSON.parse(event.data);
+            const byteArray = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
+            const grid = document.getElementById('clp1-grid');
+            grid.innerHTML = '';
+
+            byteArray.forEach((val, i) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell', `color-${val}`);
+                cell.textContent = `P${i + 1}`;
+                cell.style.display = "flex";
+                cell.style.alignItems = "center";
+                cell.style.justifyContent = "center";
+                cell.style.fontSize = "12px";
+                grid.appendChild(cell);
+            });
+        });
+
+        eventSource.addEventListener('clp2-data', function (event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('clp2').textContent = data.value;
+        });
+
+        eventSource.addEventListener('clp3-data', function (event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('clp3').textContent = data.value;
+        });
+
+        eventSource.addEventListener('clp4-data', function (event) {
+            const data = JSON.parse(event.data);
+            const byteArray = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
+            renderPedidos(byteArray);
+            document.getElementById('clp4').textContent = '-';
+        });
+
+        function renderPedidos(byteArray) {
+            const grid = document.getElementById('expedicao-grid');
+            grid.innerHTML = '';
+            byteArray.forEach((val, i) => {
+                const box = document.createElement('div');
+                box.classList.add('pedido-box');
+                box.textContent = `P${i + 1}: [OP${val}]`;
+                box.classList.add(val === 0 ? 'pedido-verde' : 'pedido-vermelho');
+                grid.appendChild(box);
+            });
+        }
+
+        window.onload = function () {
+            fetch("/atualizar-estoque");
+            fetch("/atualizar-expedicao");
+        }
+
+            < script >
+            document.getElementById("btn-ler-tag").addEventListener("click", async function (event) {
+                event.preventDefault(); // Impede o submit normal do formulário
+
+                const ip = document.querySelector('input[name="ip"]').value;
+                const porta = document.querySelector('input[name="port"]').value;
+                const db = document.querySelector('input[name="db"]').value;
+                const type = document.querySelector('select[name="type"]').value;
+                const offset = document.querySelector('input[name="offset"]').value;
+                const bitNumber = document.querySelector('input[name="bitNumber"]').value;
+                const size = document.querySelector('input[name="size"]').value;
+
+                const payload = {
+                    ip: ip,
+                    porta: Number(porta),
+                    db: Number(db),
+                    tipo: type,
+                    offset: Number(offset),
+                    bitNumber: bitNumber ? Number(bitNumber) : null,
+                    size: Number(size)
+                };
+
+                try {
+                    const response = await fetch('/read-tag', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const valorLido = await response.text();
+                        document.getElementById("campo-tag-lida").value = valorLido; // Atualiza o campo de leitura
+                    } else {
+                        alert("Erro ao ler a tag: " + await response.text());
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    alert("Erro ao tentar ler a tag");
+                }
+            });
+    </script>
+</body>
+
+</html>
