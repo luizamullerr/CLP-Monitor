@@ -115,48 +115,41 @@
             fetch("/atualizar-expedicao");
         }
 
-            < script >
-            document.getElementById("btn-ler-tag").addEventListener("click", async function (event) {
-                event.preventDefault(); // Impede o submit normal do formulário
+        document.getElementById("btn-read-tag").addEventListener("click", function () {
+            const ip = document.getElementById("ip").value;
+            const port = document.getElementById("port").value;
+            const db = document.getElementById("db").value;
+            const offset = document.getElementById("offset").value;
+            const bitNumber = document.getElementById("bitNumber").value;
+            const size = document.getElementById("size").value;
+            const type = document.getElementById("type").value;
 
-                const ip = document.querySelector('input[name="ip"]').value;
-                const porta = document.querySelector('input[name="port"]').value;
-                const db = document.querySelector('input[name="db"]').value;
-                const type = document.querySelector('select[name="type"]').value;
-                const offset = document.querySelector('input[name="offset"]').value;
-                const bitNumber = document.querySelector('input[name="bitNumber"]').value;
-                const size = document.querySelector('input[name="size"]').value;
+            const requestData = {
+                ip: ip,
+                porta: parseInt(port),
+                db: parseInt(db),
+                offset: parseInt(offset),
+                bitNumber: bitNumber ? parseInt(bitNumber) : 0,
+                size: size ? parseInt(size) : 0,
+                tipo: type
+            };
 
-                const payload = {
-                    ip: ip,
-                    porta: Number(porta),
-                    db: Number(db),
-                    tipo: type,
-                    offset: Number(offset),
-                    bitNumber: bitNumber ? Number(bitNumber) : null,
-                    size: Number(size)
-                };
-
-                try {
-                    const response = await fetch('/read-tag', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.ok) {
-                        const valorLido = await response.text();
-                        document.getElementById("campo-tag-lida").value = valorLido; // Atualiza o campo de leitura
-                    } else {
-                        alert("Erro ao ler a tag: " + await response.text());
-                    }
-                } catch (error) {
-                    console.error('Erro na requisição:', error);
-                    alert("Erro ao tentar ler a tag");
-                }
-            });
+            fetch('/read-tag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.text())
+                .then(result => {
+                    document.getElementById("read-tag").value = result;
+                })
+                .catch(error => {
+                    console.error('Erro na leitura:', error);
+                    alert('Erro ao ler a TAG!');
+                });
+        });
     </script>
 </body>
 
