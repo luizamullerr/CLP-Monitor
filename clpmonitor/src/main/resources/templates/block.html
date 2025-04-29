@@ -1,0 +1,53 @@
+<!-- src/main/resources/templates/fragments/formulario-block.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Monitoramento de CLPs</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+   <!-- src/main/resources/templates/fragments/formulario-block.html -->
+<div th:fragment="clp-block-fragment" class="clp-block-section">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+    <h2>Atualizar Bloco (Estoque/Expedição)</h2>
+
+    <form id="block-update-form" th:action="@{/update-block}" th:object="${block}" method="post">
+
+        <label>Posição (1 a 28):</label>
+        <input type="number" th:field="*{position}" min="1" max="28" required />
+
+        <label>Cor (0 a 3):</label>
+        <select th:field="*{color}" required>
+            <option value="0">Sem Cor</option>
+            <option value="1">Preto</option>
+            <option value="2">Vermelho</option>
+            <option value="3">Azul</option>
+        </select>
+
+        <label>Local:</label>
+        <select th:field="*{storageId}" required>
+            <option value="1">Estoque</option>
+            <option value="2">Expedição</option>
+        </select>
+
+        <label>Ordem de Produção:</label>
+        <input type="text" th:field="*{productionOrder}" />
+
+        <button type="submit">Atualizar Bloco</button>
+    </form>
+
+    <div id="mensagem-block">
+        <div th:if="${mensagem}" style="color: green;">
+            <p th:text="${mensagem}"></p>
+        </div>
+        <div th:if="${erro}" style="color: red;">
+            <p th:text="${erro}"></p>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

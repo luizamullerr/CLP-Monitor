@@ -5,7 +5,8 @@ import com.example.clpmonitor.model.TagReadRequest;
 import com.example.clpmonitor.model.TagWriteRequest;
 import com.example.clpmonitor.service.ClpSimulatorService;
 import com.example.clpmonitor.service.PlcConnector;
-import com.example.clpmonitor.util.TagValueParser;
+import com.example.clpmonitor.model.BlockUpdateRequest;
+import com.example.clpmonitor.service.BlockService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,20 @@ public class ClpController {
         return "redirect:/fragmento-formulario";
     }
 
+    @Autowired
+    private BlockService blockService; // Injetar o novo serviço
+
+    @PostMapping("/update-block")
+    public String updateBlock(@ModelAttribute BlockUpdateRequest blockRequest, Model model) {
+        try {
+            blockService.updateBlock(blockRequest);
+            model.addAttribute("mensagem", "Bloco atualizado com sucesso!");
+        } catch (Exception e) {
+            model.addAttribute("erro", "Erro ao atualizar bloco: " + e.getMessage());
+        }
+        model.addAttribute("block", new BlockUpdateRequest()); // Limpar o form
+        return "index"; // ou para onde você quiser voltar
+    }
 
     @PostMapping("/write-tag")
     public String writeTag(@ModelAttribute Tag tag, Model model) {
