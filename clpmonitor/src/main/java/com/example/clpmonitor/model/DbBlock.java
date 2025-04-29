@@ -1,6 +1,6 @@
 package com.example.clpmonitor.model;
 
-public class BlockUpdateRequest {
+public class DbBlock {
 
     private Integer id; // ID do bloco (se precisar, ou podemos buscar pela posição)
     private Integer position;

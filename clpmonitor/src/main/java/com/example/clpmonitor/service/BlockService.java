@@ -2,12 +2,12 @@ package com.example.clpmonitor.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.clpmonitor.model.BlockUpdateRequest;
+import com.example.clpmonitor.model.DbBlock;
 
 @Service
 public class BlockService {
 
-    public void updateBlock(BlockUpdateRequest block) throws Exception {
+    public void updateBlock(DbBlock block) throws Exception {
         System.out.println("\nAtualizando bloco:");
         System.out.println("Posição: " + block.getPosition());
         System.out.println("Cor: " + block.getColor());
