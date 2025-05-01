@@ -1,148 +1,188 @@
+/* Reset e Estilos Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
 body {
     display: flex;
-    flex-direction: row;
-    font-family: Arial;
-    margin: 40px;
-    gap: 20px;
+    background-color: #f5f7fa;
+    padding: 30px;
+    min-height: 100vh;
+    width: 1280px; /* Largura fixa */
+    margin: 0 auto;
 }
 
-table {
-    border-collapse: collapse;
-    width: 400px;
-    margin-top: 20px;
+/* Containers Principais */
+.container1 {
+    width: 850px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin-right: 30px;
 }
 
-th,
-td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: center;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-.container1,
 .container2 {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-    width: 550px;
-    padding: 20px;
-    border: 2px solid #ccc;
-    border-radius: 10px;
+    width: 800px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 25px;
 }
 
+/* Títulos e Cabeçalhos */
+h1 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+h2 {
+    color: #34495e;
+    font-size: 20px;
+    margin: 20px 0 15px 0;
+}
+
+/* Grids e Tabelas */
 .grid {
     display: grid;
-    grid-template-columns: repeat(6, 40px);
-    grid-template-rows: repeat(5, 40px);
-    gap: 5px;
+    grid-template-columns: repeat(6, 45px);
+    grid-template-rows: repeat(5, 45px);
+    gap: 8px;
+    margin: 15px 0;
 }
 
+.cell {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
 .expedicao-grid {
     display: grid;
-    grid-template-columns: repeat(4, 80px);
-    gap: 10px;
-    margin-top: 20px;
+    grid-template-columns: repeat(4, 100px);
+    gap: 12px;
+    margin: 15px 0;
 }
 
-
-
-.send{
+.pedido-box {
     width: 100px;
-    height: 80px;
-}
-
-
-.color-0 {
-    background-color: white;
-}
-
-.color-1 {
-    background-color: black;
-}
-
-.color-2 {
-    background-color: red;
-}
-
-.color-3 {
-    background-color: blue;
-}
-
-.clp-write-section {
+    height: 50px;
     display: flex;
-    flex-direction: column;
-    align-content: center;
-    margin-top: 10px;
-    width: 500px;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pedido-verde {
+    background-color: rgba(202, 247, 5, 0.1);
+    border: 2px solid rgba(202, 247, 5, 0.7);
+}
+
+.pedido-vermelho {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 2px solid rgba(255, 0, 0, 0.7);
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin: 15px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+th {
+    background-color: #34495e;
+    color: white;
+    font-weight: 500;
+}
+
+tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Formulário */
+.clp-write-section {
     padding: 20px;
-    border: 2px solid #ccc;
-    border-radius: 10px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .clp-write-section h2 {
-    margin-bottom: 10px;
+    color: #34495e;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
 }
 
 .clp-write-section form {
     display: flex;
     flex-direction: column;
-    align-content: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .clp-write-section label {
-    font-weight: bold;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 14px;
 }
 
 .clp-write-section input,
-.clp-write-section select,
-.clp-write-section button {
-    padding: 5px;
-}
-.pedido-box {
-    width: 80px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 12px;
-    border: 2px solid #ccc;
+.clp-write-section select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
 }
 
-.pedido-verde {
-    border: 2px solid rgb(202, 247, 5);
+/* Botões */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: #3498db;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
 }
 
-.pedido-vermelho {
-    border: 2px solid red;
+#btn-read-tag {
+    background-color: #2ecc71;
+    margin-top: 10px;
 }
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(6, 45px); /* 6 colunas */
-    gap: 10px;
-    padding: 10px;
-  }
-  
-  .cell {
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid black;
-    font-weight: bold;
-    font-size: 12px;
-  }
-  
-  .color-0 {
+
+/* Cores dos blocos (mantidas conforme definição original) */
+.color-0 {
     background-color: white;
     color: black;
+    border: 1px solid #ddd;
 }
 
 .color-1 {
@@ -158,4 +198,23 @@ th {
 .color-3 {
     background-color: blue;
     color: white;
+}
+
+/* Mensagens */
+#mensagem-tag {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+#mensagem-tag div[style*="color: green;"] {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+    padding: 10px;
+}
+
+#mensagem-tag div[style*="color: red;"] {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 4px solid #e74c3c;
+    padding: 10px;
 }

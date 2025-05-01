@@ -1,52 +1,76 @@
 package com.example.clpmonitor.model;
 
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "db_block")
 public class DbBlock {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private Integer id; // ID do bloco (se precisar, ou podemos buscar pela posição)
-    private Integer position;
-    private Integer color;
-    private Integer storageId;
-    private String productionOrder;
+    @Column(name = "position", nullable = false)
+    private Short position;
 
-    // Getters e Setters
+    @Column(name = "color", nullable = false)
+    private Short color;
 
-    public Integer getId() {
+    @Column(name = "storageId", nullable = false)
+    private Short storageId;
+
+    @Column(name = "productionOrder", nullable = true)
+    private Short productionOrder;
+
+    public Long getId()
+    {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id)
+    {
         this.id = id;
     }
 
-    public Integer getPosition() {
+    public Short getPosition()
+    {
         return position;
     }
 
-    public void setPosition(Integer position) {
+    public void setPosition(Short position)
+    {
         this.position = position;
     }
 
-    public Integer getColor() {
+    public Short getColor()
+    {
         return color;
     }
 
-    public void setColor(Integer color) {
+    public void setColor(Short color)
+    {
         this.color = color;
     }
 
-    public Integer getStorageId() {
+    public Short getStorageId()
+    {
         return storageId;
     }
 
-    public void setStorageId(Integer storageId) {
+    public void setStorageId(Short storageId)
+    {
         this.storageId = storageId;
     }
 
-    public String getProductionOrder() {
+    public Short getProductionOrder()
+    {
         return productionOrder;
     }
 
-    public void setProductionOrder(String productionOrder) {
+    public void setProductionOrder(Short productionOrder)
+    {
         this.productionOrder = productionOrder;
     }
+
 }

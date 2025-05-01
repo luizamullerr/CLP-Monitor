@@ -1,28 +1,28 @@
 package com.example.clpmonitor.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.example.clpmonitor.model.DbBlock;
 import com.example.clpmonitor.model.Tag;
 import com.example.clpmonitor.model.TagReadRequest;
 import com.example.clpmonitor.model.TagWriteRequest;
+import com.example.clpmonitor.repository.DbBlockRepository;
 import com.example.clpmonitor.service.ClpSimulatorService;
+import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.PlcConnector;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Controller
 public class ClpController {
 
     @Autowired
     private ClpSimulatorService simulatorService;
+
+    @Autowired
+    private DbBlockService dbBlockService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -52,9 +52,6 @@ public class ClpController {
         simulatorService.startSimulation();
         return "redirect:/fragmento-formulario";
     }
-
-    
-
 
     @PostMapping("/write-tag")
     public String writeTag(@ModelAttribute Tag tag, Model model) {
@@ -112,7 +109,6 @@ public class ClpController {
         try {
             PlcConnector plc = new PlcConnector(request.getIp(), request.getPorta());
             plc.connect();
-            // Exibindo as informações de leitura
             System.out.println("\nLendo do CLP: " + request.getIp() +
                     "\n | DB: " + request.getDb() +
                     "\n | Offset: " + request.getOffset() +
@@ -120,7 +116,6 @@ public class ClpController {
 
             Object resultado = null;
 
-            // Leitura do tipo de dado
             switch (request.getTipo().toLowerCase()) {
                 case "string":
                     resultado = plc.readString(request.getDb(), request.getOffset(), request.getSize());
@@ -145,7 +140,6 @@ public class ClpController {
                     return ResponseEntity.badRequest().body("Tipo de dado não suportado");
             }
 
-            // Retorna o valor lido como resposta
             return ResponseEntity.ok(resultado);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro ao ler valor: " + e.getMessage());
@@ -157,20 +151,20 @@ public class ClpController {
         model.addAttribute("tag", new TagWriteRequest());
         return "fragments/formulario :: clp-write-fragment";
     }
-    
+
     @GetMapping("/block")
     public String home(Model model) {
         model.addAttribute("block", new DbBlock());
         return "block";
     }
-    
+
     @PostMapping("/block")
     public String salvarBlock(@ModelAttribute("block") DbBlock tag) {
         System.out.println("Salvando: " + tag.getPosition() + ", cor: " + tag.getColor() + ", storage: " + tag.getStorageId());
+        dbBlockService.cadastrarBloco(tag); // Usa o service com lógica de update
         return "redirect:/block";
     }
-    
-    // Método para converter byte[] para String hexadecimal
+
     private String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder();
         for (byte b : bytes) {

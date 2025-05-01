@@ -9,35 +9,42 @@
 
 <body>
     <div class="container1">
-        <h1>Cadastro de Bloco</h1>
+        <h1>Cadastro de Blocos</h1>
 
-        <form th:action="@{/block}" th:object="${block}" method="post" class="DbBlock">
-            
-            <label for="position">Posição (1 a 28):</label>
-            <select id="position" th:field="*{position}" required>
-                <option th:each="i : ${#numbers.sequence(1,28)}" th:value="${i}" th:text="${i}"></option>
-            </select>
+        <form th:action="@{/block}" th:object="${block}" method="post" class="form-block">
 
-            <label for="color">Cor:</label>
-            <select id="color" th:field="*{color}" required>
-                <option value="0">Branco</option>
-                <option value="1">Preto</option>
-                <option value="2">Vermelho</option>
-                <option value="3">Azul</option>
-            </select>
+            <div class="form-row">
+                <label for="position">Posição (1 a 28):</label>
+                <select id="position" th:field="*{position}" required>
+                    <option th:each="i : ${#numbers.sequence(1,28)}" th:value="${i}" th:text="${i}"></option>
+                </select>
+            </div>
 
-            <label for="storageId">Tipo:</label>
-            <select id="storageId" th:field="*{storageId}" required>
-                <option value="1">Expedição</option>
-                <option value="2">Estoque</option>
-            </select>
+            <div class="form-row">
+                <label for="color">Cor:</label>
+                <select id="color" th:field="*{color}" required>
+                    <option value="0">Branco</option>
+                    <option value="1">Preto</option>
+                    <option value="2">Vermelho</option>
+                    <option value="3">Azul</option>
+                </select>
+            </div>
 
-            <label for="productionOrder">Ordem de Produção (opcional):</label>
-            <input type="number" id="productionOrder" th:field="*{productionOrder}" placeholder="Deixe vazio se não tiver">
+            <div class="form-row">
+                <label for="storageId">Tipo:</label>
+                <select id="storageId" th:field="*{storageId}" required>
+                    <option value="1">Expedição</option>
+                    <option value="2">Estoque</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label for="productionOrder">Ordem de Produção (opcional):</label>
+                <input type="number" id="productionOrder" th:field="*{productionOrder}" placeholder="Deixe vazio se não tiver">
+            </div>
 
             <button type="submit">Salvar</button>
         </form>
-
     </div>
 </body>
 

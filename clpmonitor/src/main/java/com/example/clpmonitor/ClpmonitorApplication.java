@@ -11,3 +11,5 @@ public class ClpmonitorApplication {
 	}
 
 }
+//sse p enviar pro mesmo clp
+//array de inteiros

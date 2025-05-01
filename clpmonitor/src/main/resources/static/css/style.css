@@ -2,50 +2,63 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f2f2f2;
     margin: 0;
-    padding: 20px;
+    
 }
 
 .container1 {
     background: white;
     padding: 30px;
-    max-width: 500px;
-    margin: auto;
+    max-width: 600px;
+    margin: 150px auto 0;
     border-radius: 12px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
     color: #333;
 }
 
+.form-block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaçamento entre grupos de campos */
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espaçamento entre label e input/select */
+}
+
 .form-block label {
-    display: block;
-    margin-top: 15px;
-    color: #555;
+    color: #1baa22;
     font-weight: bold;
 }
 
 .form-block select,
-.form-block input[type="number"] {
+.form-block input[type="number"],
+.form-block input[type="text"] {
     width: 100%;
     padding: 8px 10px;
-    margin-top: 5px;
     border-radius: 8px;
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
 
 .form-block button {
-    margin-top: 20px;
-    width: 100%;
-    padding: 10px;
+    margin-top: 10px;
+    padding: 12px;
     background-color: #4CAF50;
     border: none;
-    color: white;
     border-radius: 8px;
     font-size: 16px;
+    color: white;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .form-block button:hover {

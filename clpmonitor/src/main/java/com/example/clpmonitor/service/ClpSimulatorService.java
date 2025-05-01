@@ -47,7 +47,7 @@ public class ClpSimulatorService {
         // Agendamento separado para CLP 1 (800ms)
         sendClp1Update();
         sendClp4Update();
-        sendClp2to4Updates();
+      //  sendClp2to4Updates();
     }
 
     public void atualizarEstoque() {
@@ -140,12 +140,12 @@ public class ClpSimulatorService {
 
     // sendClp2to4Updates() – Gera valores inteiros simples
     // Simula os valores para os CLPs 2, 3 e 4 com números aleatórios de 0 a 99.
-    public void sendClp2to4Updates() {
+    /*  public void sendClp2to4Updates() {
         Random rand = new Random();
 
         sendToEmitters("clp2-data", new ClpData(2, rand.nextInt(100)));
         sendToEmitters("clp3-data", new ClpData(3, rand.nextInt(100)));
-    }
+    }*/
 
     // sendToEmitters() – Envia um evento SSE para todos os clientes
     private void sendToEmitters(String eventName, ClpData clpData) {

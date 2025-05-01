@@ -15,27 +15,13 @@
         <div id="clp1-grid" class="grid"></div>
         <button id="btn-atualizar-estoque">Atualizar Estoque</button>
 
-        <h2>CLP 2 a 4</h2>
+        
         <table>
             <thead>
-                <tr>
-                    <th>CLP</th>
-                    <th>Valor</th>
-                </tr>
+                
             </thead>
             <tbody id="clp-table">
-                <tr>
-                    <td>CLP 2</td>
-                    <td id="clp2">-</td>
-                </tr>
-                <tr>
-                    <td>CLP 3</td>
-                    <td id="clp3">-</td>
-                </tr>
-                <tr>
-                    <td>CLP 4</td>
-                    <td id="clp4">-</td>
-                </tr>
+                
             </tbody>
         </table>
 
@@ -81,7 +67,7 @@
             });
         });
 
-        eventSource.addEventListener('clp2-data', function (event) {
+       eventSource.addEventListener('clp2-data', function (event) {
             const data = JSON.parse(event.data);
             document.getElementById('clp2').textContent = data.value;
         });
