@@ -4,10 +4,13 @@ import com.example.clpmonitor.model.DbBlock;
 import com.example.clpmonitor.model.Tag;
 import com.example.clpmonitor.model.TagReadRequest;
 import com.example.clpmonitor.model.TagWriteRequest;
-import com.example.clpmonitor.repository.DbBlockRepository;
 import com.example.clpmonitor.service.ClpSimulatorService;
 import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.PlcConnector;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,12 +27,13 @@ public class ClpController {
     @Autowired
     private DbBlockService dbBlockService;
 
-    @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("tag", new TagWriteRequest());
-        return "index";
+    @GetMapping("/monitor")
+    public String monitor(Model model) {
+        model.addAttribute("contentPage", "fragments/monitor :: monitor");
+        model.addAttribute("tag", new Tag());
+        return "monitor";
     }
-
+    
     @GetMapping("/atualizar-estoque")
     @ResponseBody
     public void atualizarEstoque() {

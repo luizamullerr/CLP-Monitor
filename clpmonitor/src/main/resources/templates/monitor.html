@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Monitoramento de CLPs</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/stylemonitor.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+       
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <h1 class="logo">
+                    <i class="fas fa-industry"></i>
+                    <span>CLP Monitor</span>
+                </h1>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Página Inicial</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/monitor" class="nav-link active">
+                        <i class="fas fa-desktop"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/loja-pedido" class="nav-link">
+                        <i class="fas fa-warehouse"></i>
+                        <span>Loja</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/listaPedido" class="nav-link">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Pedidos</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/block" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuração</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- Monitoramento (esquerda) -->
+                <div class="monitoring-container">
+                    <h1>Monitoramento</h1>
+
+                    <h2>Estoque:</h2>
+                    <div id="clp1-grid" class="grid"></div>
+                    <button id="btn-atualizar-estoque">Atualizar Estoque</button>
+
+                    <h2>Expedição:</h2>
+                    <div id="expedicao-grid" class="expedicao-grid"></div>
+                    <button id="btn-atualizar-expedicao">Atualizar Expedição</button>
+                </div>
+
+                <!-- Formulário (direita) -->
+                <div class="form-container">
+                    <div class="clp-write-section" id="clp-write-container"
+                        th:replace="~{fragments/formulario :: clp-write-fragment}">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Botões para atualização manual
+        document.getElementById("btn-atualizar-estoque").addEventListener("click", () => {
+            fetch("/atualizar-estoque");
+        });
+
+        document.getElementById("btn-atualizar-expedicao").addEventListener("click", () => {
+            fetch("/atualizar-expedicao");
+        });
+
+        // SSE - Atualizações em tempo real
+        const eventSource = new EventSource('/clp-data-stream');
+
+        eventSource.addEventListener('clp1-data', function (event) {
+            const data = JSON.parse(event.data);
+            const byteArray = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
+            const grid = document.getElementById('clp1-grid');
+            grid.innerHTML = '';
+
+            byteArray.forEach((val, i) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell', `color-${val}`);
+                cell.textContent = `P${i + 1}`;
+                cell.style.display = "flex";
+                cell.style.alignItems = "center";
+                cell.style.justifyContent = "center";
+                cell.style.fontSize = "14px";
+                grid.appendChild(cell);
+            });
+        });
+
+        eventSource.addEventListener('clp2-data', function (event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('clp2').textContent = data.value;
+        });
+
+        eventSource.addEventListener('clp3-data', function (event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('clp3').textContent = data.value;
+        });
+
+        eventSource.addEventListener('clp4-data', function (event) {
+            const data = JSON.parse(event.data);
+            const byteArray = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
+            renderPedidos(byteArray);
+            document.getElementById('clp4').textContent = '-';
+        });
+
+        function renderPedidos(byteArray) {
+            const grid = document.getElementById('expedicao-grid');
+            grid.innerHTML = '';
+            byteArray.forEach((val, i) => {
+                const box = document.createElement('div');
+                box.classList.add('pedido-box');
+                box.textContent = `P${i + 1}: [OP${val}]`;
+                box.classList.add(val === 0 ? 'pedido-verde' : 'pedido-vermelho');
+                grid.appendChild(box);
+            });
+        }
+
+        window.onload = function () {
+            fetch("/atualizar-estoque");
+            fetch("/atualizar-expedicao");
+        }
+
+        document.getElementById("btn-read-tag").addEventListener("click", function () {
+            const ip = document.getElementById("ip").value;
+            const port = document.getElementById("port").value;
+            const db = document.getElementById("db").value;
+            const offset = document.getElementById("offset").value;
+            const bitNumber = document.getElementById("bitNumber").value;
+            const size = document.getElementById("size").value;
+            const type = document.getElementById("type").value;
+
+            const requestData = {
+                ip: ip,
+                porta: parseInt(port),
+                db: parseInt(db),
+                offset: parseInt(offset),
+                bitNumber: bitNumber ? parseInt(bitNumber) : 0,
+                size: size ? parseInt(size) : 0,
+                tipo: type
+            };
+
+            fetch('/read-tag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.text())
+                .then(result => {
+                    document.getElementById("read-tag").value = result;
+                })
+                .catch(error => {
+                    console.error('Erro na leitura:', error);
+                    alert('Erro ao ler a TAG!');
+                });
+        });
+    </script>
+</body>
+</html>

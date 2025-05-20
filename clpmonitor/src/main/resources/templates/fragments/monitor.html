@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="clp-write-section">
+        <div th:replace="fragments/formulario :: clp-write-fragment"></div>
+    </div>
+        <div class="monitor-container">
+            <h2>Monitoramento de CLPs</h2>
+            
+            <div class="grid-section">
+                <h3>CLP 1 (Matriz de 28 bytes)</h3>
+                <div id="clp1-grid" class="grid"></div>
+                <button id="btn-atualizar-estoque" class="btn">Atualizar Estoque</button>
+            </div>
+    
+            <div class="expedicao-section">
+                <h3>Expedição</h3>
+                <div id="expedicao-grid" class="expedicao-grid"></div>
+                <button id="btn-atualizar-expedicao" class="btn">Atualizar Expedição</button>
+            </div>
+    
+            <div class="clp-write-section">
+                <h3>Escrever Tag no CLP</h3>
+                <form id="clp-write-form" th:action="@{/write-tag}" th:object="${tag}" method="post">
+                    <!-- Formulário existente -->
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

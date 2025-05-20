@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div th:fragment="pedidos">
+        <div class="pedidos-container">
+            <h2>Lista de Pedidos</h2>
+            
+            <div class="filters">
+                <input type="text" placeholder="Filtrar por OP..." id="filter-op">
+                <select id="filter-status">
+                    <option value="all">Todos</option>
+                    <option value="0">Pendentes</option>
+                    <option value="1">Em produção</option>
+                    <option value="2">Concluídos</option>
+                </select>
+            </div>
+    
+            <table class="pedidos-table">
+                <thead>
+                    <tr>
+                        <th>OP</th>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Status</th>
+                        <th>Posição</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="pedidos-list">
+                    <!-- Os pedidos serão carregados via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>   
+</body>
+</html>

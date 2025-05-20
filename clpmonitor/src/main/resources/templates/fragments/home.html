@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div th:fragment="home">
+        <div class="dashboard">
+            <h2>Bem-vindo ao Sistema de Monitoramento CLP</h2>
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>Monitoramento</h3>
+                    <p>Acompanhe em tempo real o status dos CLPs</p>
+                    <a href="/monitor" class="btn">Acessar Monitor</a>
+                </div>
+                <div class="card">
+                    <h3>Gestão de Pedidos</h3>
+                    <p>Visualize e gerencie os pedidos de produção</p>
+                    <a href="/pedidos" class="btn">Ver Pedidos</a>
+                </div>
+                <div class="card">
+                    <h3>Configuração</h3>
+                    <p>Configure os blocos e parâmetros do sistema</p>
+                    <a href="/block" class="btn">Configurar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

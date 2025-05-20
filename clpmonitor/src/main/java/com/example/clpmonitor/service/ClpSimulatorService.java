@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.clpmonitor.model.ClpData;
+import com.example.clpmonitor.model.Tag;
 
 import jakarta.annotation.PostConstruct;
 
@@ -104,7 +105,7 @@ public class ClpSimulatorService {
         ClpData clp1 = new ClpData(1, byteArray);
         sendToEmitters("clp1-data", clp1);
     }
-
+    
     public void sendClp4Update() {
 
         int values[] = new int[12];

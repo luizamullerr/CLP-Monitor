@@ -1,6 +1,6 @@
 <!-- src/main/resources/templates/fragments/formulario.html -->
 <div th:fragment="clp-write-fragment" class="clp-write-section">
-    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+    <link rel="stylesheet" th:href="@{/css/stylemonitor.css}">
     <h2>Escrever Tag no CLP</h2>
     <form id="clp-write-form" th:action="@{/write-tag}" th:object="${tag}" method="post">
         <label>IP do CLP:</label>
@@ -34,7 +34,7 @@
         <label>Valor:</label>
         <input type="text" th:field="*{value}" required />
 
-        <button type="button" id="btn-read-tag">Ler TAG</button> <!-- Botão corrigido -->
+        <button type="button" id="btn-read-tag">Ler TAG</button>
 
         <label>Tag Lida:</label>
         <input type="text" id="read-tag" readonly /> <!-- Campo para mostrar leitura -->
