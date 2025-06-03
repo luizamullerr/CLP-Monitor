@@ -11,6 +11,7 @@
 body {
     overflow-x: hidden;
     background-color: #f8fafc;
+    background-size: cover;
     
 }
 
@@ -177,19 +178,28 @@ select:focus {
 
 #blocosContainer {
     display: flex;
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-    flex-wrap: wrap;
+    gap: 1rem;
+    flex-direction:row;
+    flex: 1;
+}
+
+.bloco-montado {
+    margin-right: 650px;
 }
 
 .bloco {
+    display: flex;
+    flex-direction: column;
     border: 1px solid #e2e8f0;
     padding: 1.5rem;
     border-radius: 8px;
     background-color: white;
     width: 300px;
+    height: 600px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s, box-shadow 0.3s;
+    
+    
 }
 
 .bloco:hover {
@@ -318,6 +328,7 @@ hr {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+
 /* Responsividade */
 @media (max-width: 768px) {
     .sidebar {
@@ -344,13 +355,62 @@ hr {
     }
 
     .bloco {
-        width: 100%;
+        width: 300px;
     }
 }
 
-@media (max-width: 480px) {
-    .input-row {
-        flex-direction: column;
-        gap: 12px;
-    }
+/* Container principal */
+.relative1 {
+    position: relative;
+    height: 500px; /* Ajuste conforme necessário */
+    width: 700px;
+    margin: 24px;
+    margin-left: -90%;
+    
 }
+.teste {
+    display: flex;
+    flex-direction: row; /* Alinhamento lado a lado */
+    align-items: flex-start; /* Alinha no topo */
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    gap: 3rem;
+    margin: 20px;
+}
+
+/* Todos os elementos absolutos */
+.absolute0 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+/* Imagens - ajuste crucial para sobreposição */
+.absolute0 img {
+    display: block;
+    max-width: 100%;
+    
+    height: auto;
+    image-rendering: crisp-edges; /* Melhora a qualidade para pixel art */
+}
+
+
+/* Ajuste fino para a tampa */
+#divAlturaTampa {
+    z-index: 100;
+}
+
+/* Garante que os padrões fiquem sobre as lâminas */
+[class*="Padrao"] {
+    z-index: 110;
+}
+
+/* Garante que as lâminas fiquem sobre os blocos */
+[class*="Lamina"] {
+    z-index: 105;
+}
+
+
