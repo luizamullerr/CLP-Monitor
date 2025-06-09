@@ -1,7 +1,28 @@
 // Renderiza os blocos baseado no tipo selecionado
+// Renderiza os blocos baseado no tipo selecionado, mantendo as informações preenchidas
 function renderBlocos() {
     const tipo = document.getElementById("tipoPedido").value;
     const container = document.getElementById("blocosContainer");
+    
+    // Salva os valores atuais antes de limpar
+    const savedValues = [];
+    const existingBlocks = container.querySelectorAll('.bloco');
+    
+    existingBlocks.forEach((block, index) => {
+        const blockNumber = index + 1;
+        savedValues[blockNumber] = {
+            blockColor: document.getElementById(`block-color-${blockNumber}`)?.value,
+            l1Color: document.getElementById(`l1-color-${blockNumber}`)?.value,
+            l2Color: document.getElementById(`l2-color-${blockNumber}`)?.value,
+            l3Color: document.getElementById(`l3-color-${blockNumber}`)?.value,
+            l1Pattern: document.getElementById(`l1-pattern-${blockNumber}`)?.value,
+            l2Pattern: document.getElementById(`l2-pattern-${blockNumber}`)?.value,
+            l3Pattern: document.getElementById(`l3-pattern-${blockNumber}`)?.value,
+            isSpun: document.getElementById(`pedido-view${blockNumber}`)?.classList.contains("spin")
+        };
+    });
+
+    // Limpa apenas os blocos que não serão mais necessários
     container.innerHTML = "";
 
     let blocos = tipo === "simples" ? 1 : tipo === "duplo" ? 2 : 3;
@@ -115,8 +136,54 @@ function renderBlocos() {
 
         container.appendChild(blocoDiv);
 
-        verBlocosMontados();
+        // Restaura os valores salvos, se existirem
+        if (savedValues[nBloco]) {
+            const values = savedValues[nBloco];
+            
+            // Restaura cor do bloco
+            if (values.blockColor) {
+                document.getElementById(`block-color-${nBloco}`).value = values.blockColor;
+            }
+            
+            // Restaura cores das lâminas
+            if (values.l1Color) {
+                document.getElementById(`l1-color-${nBloco}`).value = values.l1Color;
+                document.getElementById(`l1-color-${nBloco}`).disabled = false;
+            }
+            if (values.l2Color) {
+                document.getElementById(`l2-color-${nBloco}`).value = values.l2Color;
+                document.getElementById(`l2-color-${nBloco}`).disabled = false;
+            }
+            if (values.l3Color) {
+                document.getElementById(`l3-color-${nBloco}`).value = values.l3Color;
+                document.getElementById(`l3-color-${nBloco}`).disabled = false;
+            }
+            
+            // Restaura padrões das lâminas
+            if (values.l1Pattern) {
+                document.getElementById(`l1-pattern-${nBloco}`).value = values.l1Pattern;
+                document.getElementById(`l1-pattern-${nBloco}`).disabled = !values.l1Color;
+            }
+            if (values.l2Pattern) {
+                document.getElementById(`l2-pattern-${nBloco}`).value = values.l2Pattern;
+                document.getElementById(`l2-pattern-${nBloco}`).disabled = !values.l2Color;
+            }
+            if (values.l3Pattern) {
+                document.getElementById(`l3-pattern-${nBloco}`).value = values.l3Pattern;
+                document.getElementById(`l3-pattern-${nBloco}`).disabled = !values.l3Color;
+            }
+            
+            // Restaura estado de spin
+            if (values.isSpun) {
+                document.getElementById(`pedido-view${nBloco}`).classList.add("spin");
+            }
+            
+            // Atualiza a visualização
+            changePedidoView(nBloco);
+        }
     }
+
+    verBlocosMontados();
 }
 // Função auxiliar para renderizar os blocos do pedido
 function renderBlocosPedido(blocos) {
@@ -189,11 +256,11 @@ function getPadraoText(padrao) {
 }
 
 function verBlocosMontados() {
-    var andares = "3";
+    const tipo = document.getElementById("tipoPedido").value;
+    const andares = tipo === "simples" ? "1" : tipo === "duplo" ? "2" : "3";
 
-    //Define a sequencia das imagens através da propriedade zIndex
+    // Define a sequencia das imagens através da propriedade zIndex
     document.getElementById("divAlturaAndar1").style.zIndex = "5";
-    //document.getElementById("divAlturaAndar1").style.zIndex = "23";
     document.getElementById("divAlturaLaminaAndar1Pos1").style.zIndex = "6";
     document.getElementById("divAlturaLaminaAndar1Pos3").style.zIndex = "7";
     document.getElementById("divAlturaLaminaAndar1Pos2").style.zIndex = "8";
@@ -201,7 +268,6 @@ function verBlocosMontados() {
     document.getElementById("divAlturaPadraoAndar1Pos2").style.zIndex = "10";
 
     document.getElementById("divAlturaAndar2").style.zIndex = "11";
-    //document.getElementById("divAlturaAndar2").style.zIndex = "17";
     document.getElementById("divAlturaLaminaAndar2Pos1").style.zIndex = "12";
     document.getElementById("divAlturaLaminaAndar2Pos3").style.zIndex = "13";
     document.getElementById("divAlturaLaminaAndar2Pos2").style.zIndex = "14";
@@ -209,7 +275,6 @@ function verBlocosMontados() {
     document.getElementById("divAlturaPadraoAndar2Pos2").style.zIndex = "16";
 
     document.getElementById("divAlturaAndar3").style.zIndex = "17";
-    //document.getElementById("divAlturaAndar3").style.zIndex = "11";
     document.getElementById("divAlturaLaminaAndar3Pos1").style.zIndex = "18";
     document.getElementById("divAlturaLaminaAndar3Pos3").style.zIndex = "19";
     document.getElementById("divAlturaLaminaAndar3Pos2").style.zIndex = "20";
@@ -217,97 +282,66 @@ function verBlocosMontados() {
     document.getElementById("divAlturaPadraoAndar3Pos2").style.zIndex = "22";
 
     document.getElementById("divAlturaTampa").style.zIndex = "23";
-    //document.getElementById("divAlturaTampa").style.zIndex = "5";
-    document.height
 
-    //Define se precisa colocar a tampa
-    if (andares != 0) {
-        document.getElementById("tampa").src = "assets/bloco/rTampa1.png";
+    // Define se precisa colocar a tampa
+    document.getElementById("tampa").src = andares !== "0" ? "assets/bloco/rTampa1.png" : "assets/bloco/rBlocoCor0.png";
+
+    // Mostra todos os elementos primeiro
+    const allElements = [
+        "divAlturaAndar1", "divAlturaLaminaAndar1Pos1", "divAlturaLaminaAndar1Pos2", "divAlturaLaminaAndar1Pos3",
+        "divAlturaPadraoAndar1Pos1", "divAlturaPadraoAndar1Pos2",
+        "divAlturaAndar2", "divAlturaLaminaAndar2Pos1", "divAlturaLaminaAndar2Pos2", "divAlturaLaminaAndar2Pos3",
+        "divAlturaPadraoAndar2Pos1", "divAlturaPadraoAndar2Pos2",
+        "divAlturaAndar3", "divAlturaLaminaAndar3Pos1", "divAlturaLaminaAndar3Pos2", "divAlturaLaminaAndar3Pos3",
+        "divAlturaPadraoAndar3Pos1", "divAlturaPadraoAndar3Pos2"
+    ];
+
+    allElements.forEach(id => {
+        document.getElementById(id).style.display = 'block';
+    });
+
+    // Oculta os elementos conforme o número de andares
+    switch (andares) {
+        case "1":
+            ["divAlturaAndar2", "divAlturaLaminaAndar2Pos1", "divAlturaLaminaAndar2Pos2", "divAlturaLaminaAndar2Pos3",
+             "divAlturaPadraoAndar2Pos1", "divAlturaPadraoAndar2Pos2",
+             "divAlturaAndar3", "divAlturaLaminaAndar3Pos1", "divAlturaLaminaAndar3Pos2", "divAlturaLaminaAndar3Pos3",
+             "divAlturaPadraoAndar3Pos1", "divAlturaPadraoAndar3Pos2"].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            break;
+
+        case "2":
+            ["divAlturaAndar3", "divAlturaLaminaAndar3Pos1", "divAlturaLaminaAndar3Pos2", "divAlturaLaminaAndar3Pos3",
+             "divAlturaPadraoAndar3Pos1", "divAlturaPadraoAndar3Pos2"].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            break;
     }
-    else {
-        document.getElementById("tampa").src = "assets/bloco/rBlocoCor0.png";
-    }
 
-
-
-    //Define a cor do Bloco que deve aparecer
-    document.getElementById("andar1Pedido").src = "assets/bloco/rBlocoCor0.png";
-    document.getElementById("andar2Pedido").src = "assets/bloco/rBlocoCor0.png";
-    document.getElementById("andar3Pedido").src = "assets/bloco/rBlocoCor0.png";
-
-    //Define a cor das laminas da ESQUERDA que deve aparecer em cada andar
-    document.getElementById("pos1andar1Pedido").src = "assets/laminas/lamina1-0.png";
-    document.getElementById("pos1andar2Pedido").src = "assets/laminas/lamina1-0.png";
-    document.getElementById("pos1andar3Pedido").src = "assets/laminas/lamina1-0.png";
-
-    //Define o padrão das laminas da ESQUERDA que deve aparecer em cada
-    document.getElementById("padrao1andar1Pedido").src = "assets/padroes/padrao1-0.png";
-    document.getElementById("padrao1andar2Pedido").src = "assets/padroes/padrao2-0.png";
-    document.getElementById("padrao1andar3Pedido").src = "assets/padroes/padrao3-0.png";
-
-    //Define a cor das laminas da FRENTE que deve aparecer em cada andar
-    document.getElementById("pos2andar1Pedido").src = "assets/laminas/lamina2-0.png";
-    document.getElementById("pos2andar2Pedido").src = "assets/laminas/lamina2-0.png";
-    document.getElementById("pos2andar3Pedido").src = "assets/laminas/lamina2-0.png";
-
-    //Define o padrão das laminas da FRENTE que deve aparecer em cada andar
-    document.getElementById("padrao2andar1Pedido").src = "assets/padroes/padrao1-0.png";
-    document.getElementById("padrao2andar2Pedido").src = "assets/padroes/padrao2-0.png";
-    document.getElementById("padrao2andar3Pedido").src = "assets/padroes/padrao3-0.png";
-
-    //Define a cor das laminas da DIREITA que deve aparecer em cada andar
-    document.getElementById("pos3andar1Pedido").src = "assets/laminas/lamina3-0.png";
-    document.getElementById("pos3andar2Pedido").src = "assets/laminas/lamina3-0.png";
-    document.getElementById("pos3andar3Pedido").src = "assets/laminas/lamina3-0.png";
-
-
+    // Restante do código (alturas, cores, etc.)
     var alturaimagem = document.getElementById("andar1Pedido").offsetHeight;
-
     var fatorMultiplicador = 0.445;
 
-    var altura1 = "38px";
+    var altura1 = "39px";
     var altura2 = 1 * fatorMultiplicador * alturaimagem + "px";
     var altura3 = 2 * fatorMultiplicador * alturaimagem + "px";
     var altura4 = 3 * fatorMultiplicador * alturaimagem + "px";
 
-
-    //Define altura do top que cada imagem ira aparecer na tela
+    // Define altura do top que cada imagem ira aparecer na tela
     switch (andares) {
-
         case "1":
-            //alert("AQUI-1");
             document.getElementById("divAlturaTampa").style.top = altura1;
-
             document.getElementById("divAlturaAndar1").style.top = altura2;
             document.getElementById("divAlturaLaminaAndar1Pos1").style.top = altura2;
             document.getElementById("divAlturaLaminaAndar1Pos2").style.top = altura2;
             document.getElementById("divAlturaLaminaAndar1Pos3").style.top = altura2;
             document.getElementById("divAlturaPadraoAndar1Pos1").style.top = altura2;
             document.getElementById("divAlturaPadraoAndar1Pos2").style.top = altura2;
-
-
-            document.getElementById("divAlturaAndar2").style.display = 'none';
-            document.getElementById("divAlturaLaminaAndar2Pos1").style.display = 'none';
-            document.getElementById("divAlturaLaminaAndar2Pos2").style.display = 'none';
-            document.getElementById("divAlturaLaminaAndar2Pos3").style.display = 'none';
-            document.getElementById("divAlturaPadraoAndar2Pos1").style.display = 'none';
-            document.getElementById("divAlturaPadraoAndar2Pos2").style.display = 'none';
-
-
-            document.getElementById("divAlturaAndar3").style.display = 'none';
-            document.getElementById("divAlturaLaminaAndar3Pos1").style.display = 'none';
-            document.getElementById("divAlturaLaminaAndar3Pos2").style.display = 'none';
-            document.getElementById("divAlturaLaminaAndar3Pos3").style.display = 'none';
-            document.getElementById("divAlturaPadraoAndar3Pos1").style.display = 'none';
-            document.getElementById("divAlturaPadraoAndar3Pos2").style.display = 'none';
-
-
             break;
 
         case "2":
-            //alert("AQUI-2");
             document.getElementById("divAlturaTampa").style.top = altura1;
-
             document.getElementById("divAlturaAndar1").style.top = altura3;
             document.getElementById("divAlturaLaminaAndar1Pos1").style.top = altura3;
             document.getElementById("divAlturaLaminaAndar1Pos2").style.top = altura3;
@@ -321,21 +355,10 @@ function verBlocosMontados() {
             document.getElementById("divAlturaLaminaAndar2Pos3").style.top = altura2;
             document.getElementById("divAlturaPadraoAndar2Pos1").style.top = altura2;
             document.getElementById("divAlturaPadraoAndar2Pos2").style.top = altura2;
-
-            document.getElementById("divAlturaAndar3").style.display = altura2;
-            document.getElementById("divAlturaLaminaAndar3Pos1").style.display = altura2;
-            document.getElementById("divAlturaLaminaAndar3Pos2").style.display = altura2;
-            document.getElementById("divAlturaLaminaAndar3Pos3").style.display = altura2;
-            document.getElementById("divAlturaPadraoAndar3Pos1").style.display = altura2;
-            document.getElementById("divAlturaPadraoAndar3Pos2").style.display = altura2;
-
-
             break;
-        case "3":
-            //alert("AQUI-3");
-            document.getElementById("divAlturaTampa").style.top = altura1;
-            //document.getElementById("divAlturaTampa").style.display = 'none';
 
+        case "3":
+            document.getElementById("divAlturaTampa").style.top = altura1;
             document.getElementById("divAlturaAndar1").style.top = altura4;
             document.getElementById("divAlturaLaminaAndar1Pos1").style.top = altura4;
             document.getElementById("divAlturaLaminaAndar1Pos2").style.top = altura4;
@@ -356,15 +379,7 @@ function verBlocosMontados() {
             document.getElementById("divAlturaLaminaAndar3Pos3").style.top = altura2;
             document.getElementById("divAlturaPadraoAndar3Pos1").style.top = altura2;
             document.getElementById("divAlturaPadraoAndar3Pos2").style.top = altura2;
-
-
             break;
-
-        default:
-            //alert("AQUI-0");
-            document.getElementById("divAlturaAndar1").style.top = "0px";
-            document.getElementById("divAlturaAndar2").style.top = "0px";
-            document.getElementById("divAlturaAndar3").style.top = "0px";
     }
 
     // Define as cores dos blocos conforme seleção do usuário
@@ -377,13 +392,12 @@ function verBlocosMontados() {
         }
     }
 
-
     // CORREÇÃO PARA A SEÇÃO DE LÂMINAS E PADRÕES
     for (let blocoNum = 1; blocoNum <= 3; blocoNum++) {
         // Primeiro reseta todos os padrões deste bloco/andar
-        for (let pos = 1; pos <= 2; pos++) { // Só posições 1 e 2 têm padrões
+        for (let pos = 1; pos <= 2; pos++) {
             document.getElementById(`padrao${pos}andar${blocoNum}Pedido`).src =
-                `assets/padroes/padrao0-${pos}.png`; // Imagem vazia
+                `assets/padroes/padrao0-${pos}.png`;
         }
 
         // Agora aplica as seleções atuais
@@ -396,12 +410,11 @@ function verBlocosMontados() {
                     `assets/laminas/lamina${pos}-${laminaEl.value}.png`;
 
                 // Atualiza padrões apenas se houver lâmina selecionada
-                if (pos <= 2) { // Só posições 1 e 2 têm padrões
+                if (pos <= 2) {
                     const padraoEl = document.getElementById(`l${pos}-pattern-${blocoNum}`);
                     if (padraoEl && padraoEl.value) {
-                        // CORREÇÃO: Usar o mesmo ID de padrão para todas as posições
                         document.getElementById(`padrao${pos}andar${blocoNum}Pedido`).src =
-                            `assets/padroes/padrao${padraoEl.value}-${pos}.png`; // Note a ordem corrigida
+                            `assets/padroes/padrao${padraoEl.value}-${pos}.png`;
                     }
                 }
             }
@@ -455,7 +468,6 @@ function changePedidoView(id) {
             const color = [l1Color, l2Color, l3Color][index];
             document.getElementById(prefix + id).disabled = !color;
         });
-
     }
 
     verBlocosMontados();
@@ -593,7 +605,6 @@ function listarPedidos() {
             `;
         });
 }
-
 
 // Inicializa a página
 window.onload = function () {
