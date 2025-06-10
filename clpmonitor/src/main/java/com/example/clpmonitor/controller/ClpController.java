@@ -7,10 +7,6 @@ import com.example.clpmonitor.model.TagWriteRequest;
 import com.example.clpmonitor.service.ClpSimulatorService;
 import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.PlcConnector;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

@@ -487,63 +487,104 @@ function enviarPedido() {
 
     const pedido = {
         tipo: tipo,
-        blocos: []
+        blocos: [],
+        status: "pendente", // Status inicial
+        data: new Date().toISOString() // Data atual
     };
 
     blocos.forEach((bloco, index) => {
         const numBloco = index + 1;
-        const corBloco = document.getElementById("block-color-" + numBloco).value;
+
+        const blocoColorElement = document.getElementById("block-color-" + numBloco);
+        const corBloco = blocoColorElement ? blocoColorElement.value : null;
+
+        if (!blocoColorElement) {
+            console.warn(`Elemento block-color-${numBloco} não encontrado`);
+        }
 
         const laminas = [];
 
-        // Captura as cores e padrões das lâminas
-        const cores = [
-            document.getElementById("l1-color-" + numBloco).value,
-            document.getElementById("l2-color-" + numBloco).value,
-            document.getElementById("l3-color-" + numBloco).value
-        ];
+        for (let i = 1; i <= 3; i++) {
+            const corElement = document.getElementById(`l${i}-color-${numBloco}`);
+            const padraoElement = document.getElementById(`l${i}-pattern-${numBloco}`);
 
-        const padroes = [
-            document.getElementById("l1-pattern-" + numBloco).value,
-            document.getElementById("l2-pattern-" + numBloco).value,
-            document.getElementById("l3-pattern-" + numBloco).value
-        ];
+            const cor = corElement ? corElement.value : null;
+            const padrao = padraoElement ? padraoElement.value : null;
 
-        for (let i = 0; i < 3; i++) {
-            laminas.push({
-                cor: cores[i],
-                padrao: padroes[i]
-            });
+            if (!corElement) {
+                console.warn(`Elemento l${i}-color-${numBloco} não encontrado`);
+            }
+            if (!padraoElement) {
+                console.warn(`Elemento l${i}-pattern-${numBloco} não encontrado`);
+            }
+
+            // Só adiciona se a cor da lâmina estiver definida
+            if (cor) {
+                laminas.push({
+                    cor: cor,
+                    padrao: padrao || null
+                });
+            }
         }
 
-        pedido.blocos.push({
-            cor: corBloco,
-            laminas: laminas
-        });
+        // Só adiciona blocos válidos
+        if (corBloco) {
+            pedido.blocos.push({
+                cor: corBloco,
+                laminas: laminas
+            });
+        }
     });
 
+    // Verifica se pelo menos um bloco foi adicionado
+    if (pedido.blocos.length === 0) {
+        alert("Por favor, adicione pelo menos um bloco válido ao pedido.");
+        return;
+    }
+
+    // Envia o pedido
     fetch("/store/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([pedido])
-    }).then(res => {
+        body: JSON.stringify([pedido]) // envia um array contendo 1 pedido
+    })
+    .then(res => {
         if (res.ok) {
             alert("Pedido enviado com sucesso!");
-            listarPedidos();
+            window.location.href = "/listaPedido"; // Redireciona para a lista de pedidos
         } else {
-            alert("Erro ao enviar pedido.");
+            return res.json().then(err => {
+                throw new Error(err.message || "Erro ao enviar pedido");
+            });
         }
+    })
+    .catch(err => {
+        alert(err.message || "Erro ao enviar pedido");
+        console.error("Erro:", err);
     });
 }
 
-function listarPedidos() {
+
+function listaPedidos() {
+    const listaContainer = document.getElementById("listaPedidos");
+
+    // Verificação de segurança: impede erro se o elemento não existe na página atual
+    if (!listaContainer) {
+        console.warn("Elemento 'listaPedidos' não encontrado no DOM.");
+        return;
+    }
+
     fetch("/store/orders")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao carregar pedidos");
+            }
+            return response.json();
+        })
         .then(data => {
-            const listaContainer = document.getElementById("listaPedidos");
             listaContainer.innerHTML = "";
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 listaContainer.innerHTML = `
                     <div class="empty-message">
                         <span class="material-symbols-rounded">inbox</span>
@@ -553,25 +594,27 @@ function listarPedidos() {
                 return;
             }
 
+            // Ordena do mais recente para o mais antigo
+            data.sort((a, b) => new Date(b.data) - new Date(a.data));
+
             data.forEach((pedido, index) => {
                 const pedidoDiv = document.createElement("div");
                 pedidoDiv.classList.add("pedido-card");
-                pedidoDiv.style.animationDelay = `${index * 0.1}s`;
 
-                // Formatando a data (se existir no pedido)
-                const dataPedido = pedido.data ? new Date(pedido.data).toLocaleString() : 'Data não disponível';
+                const dataFormatada = pedido.data ?
+                    new Date(pedido.data).toLocaleString('pt-BR') :
+                    'Data não disponível';
 
-                // Criando o HTML do card
                 pedidoDiv.innerHTML = `
                     <div class="pedido-header">
                         <h3 class="pedido-title">Pedido #${index + 1}</h3>
-                        <span class="pedido-id">${pedido.tipo || 'Tipo não especificado'}</span>
+                        <span class="pedido-id">Tipo: ${pedido.tipo || 'Não especificado'}</span>
                     </div>
                     
                     <div class="pedido-info">
                         <div class="info-item">
                             <span class="material-symbols-rounded">calendar_today</span>
-                            <span>${dataPedido}</span>
+                            <span>${dataFormatada}</span>
                         </div>
                     </div>
                     
@@ -581,26 +624,18 @@ function listarPedidos() {
                         <span class="pedido-status ${getStatusClass(pedido.status)}">
                             ${pedido.status || 'pendente'}
                         </span>
-                        <div class="pedido-actions">
-                            <button class="action-btn" title="Detalhes">
-                                <span class="material-symbols-rounded">visibility</span>
-                            </button>
-                            <button class="action-btn" title="Editar">
-                                <span class="material-symbols-rounded">edit</span>
-                            </button>
-                        </div>
                     </div>
                 `;
 
                 listaContainer.appendChild(pedidoDiv);
             });
         })
-        .catch(() => {
-            const listaContainer = document.getElementById("listaPedidos");
+        .catch(err => {
+            console.error("Erro:", err);
             listaContainer.innerHTML = `
                 <div class="empty-message error">
                     <span class="material-symbols-rounded">error</span>
-                    <p>Erro ao carregar pedidos</p>
+                    <p>${err.message || 'Erro ao carregar pedidos'}</p>
                 </div>
             `;
         });
@@ -610,5 +645,5 @@ function listarPedidos() {
 window.onload = function () {
     renderBlocos();
     verBlocosMontados();
-    listarPedidos();
+    listaPedidos();
 };

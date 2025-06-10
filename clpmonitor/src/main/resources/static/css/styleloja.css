@@ -1,4 +1,26 @@
-/* styleloja.css - Versão com barra lateral moderna e estilo anterior no conteúdo */
+/* Variáveis de cores */
+:root {
+    --primary: #4361ee;
+    --primary-light: #4895ef;
+    --primary-dark: #3a0ca3;
+    --secondary: #7209b7;
+    --accent: #f72585;
+    --dark: #1a1a2e;
+    --light: #f8f9fa;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --danger: #ef233c;
+    
+    /* Novas cores harmonizadas */
+    --sidebar-bg: rgba(26, 26, 46, 0.98);
+    --card-bg: rgba(35, 35, 59, 0.95);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-light: #f0f2f5;
+    --text-muted: rgba(240, 242, 245, 0.7);
+    --grid-bg: rgba(255, 255, 255, 0.9);
+    --online: #4ade80;
+    --offline: #f87171;
+}
 
 /* Reset e Estilos Base */
 * {
@@ -9,10 +31,11 @@
 }
 
 body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    color: var(--dark);
+    line-height: 1.6;
     overflow-x: hidden;
-    background-color: #f8fafc;
-    background-size: cover;
-    
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Layout Principal */
@@ -21,10 +44,10 @@ body {
     min-height: 100vh;
 }
 
-/* BARRA LATERAL MODERNA (mantida do novo design) */
+/* BARRA LATERAL MODERNA */
 .sidebar {
     width: 280px;
-    background: rgba(26, 26, 46, 0.95);
+    background: var(--sidebar-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     height: 100vh;
@@ -35,17 +58,17 @@ body {
     flex-direction: column;
     z-index: 100;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid var(--card-border);
 }
 
 .logo-container {
     padding: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--card-border);
     margin-bottom: 16px;
 }
 
 .logo {
-    color: white;
+    color: var(--text-light);
     font-size: 1.5rem;
     font-weight: 700;
     display: flex;
@@ -55,7 +78,7 @@ body {
 }
 
 .logo i {
-    color: #4895ef;
+    color: var(--primary-light);
     font-size: 1.8rem;
     transition: transform 0.3s ease;
 }
@@ -83,7 +106,7 @@ body {
 }
 
 .nav-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-muted);
     text-decoration: none;
     padding: 14px 16px;
     display: flex;
@@ -97,12 +120,12 @@ body {
 
 .nav-link:hover {
     background: rgba(67, 97, 238, 0.2);
-    color: white;
+    color: var(--text-light);
 }
 
 .nav-link.active {
     background: linear-gradient(90deg, rgba(67, 97, 238, 0.3), transparent);
-    color: white;
+    color: var(--text-light);
     position: relative;
 }
 
@@ -113,7 +136,7 @@ body {
     top: 0;
     bottom: 0;
     width: 3px;
-    background: linear-gradient(to bottom, #4895ef, #3f37c9);
+    background: linear-gradient(to bottom, var(--primary-light), var(--primary-dark));
 }
 
 .nav-link i {
@@ -122,17 +145,18 @@ body {
     font-size: 1.1rem;
 }
 
-/* Conteúdo Principal (estilo original) */
+/* Conteúdo Principal */
 .main-content {
     flex-grow: 1;
     padding: 30px;
     background-color: #f5f7fa;
     margin-left: 280px;
+    width: calc(100% - 280px);
 }
 
-/* Estilos do Conteúdo (original) */
+/* Estilos do Conteúdo */
 h1 {
-    color: #2c3e50;
+    color: var(--dark);
     font-size: 2rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
@@ -147,7 +171,8 @@ h1::after {
     left: 0;
     width: 60px;
     height: 3px;
-    background-color: #3498db;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 3px;
 }
 
 label {
@@ -172,19 +197,30 @@ select {
 
 select:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
 }
 
 #blocosContainer {
     display: flex;
     gap: 1rem;
-    flex-direction:row;
+    flex-direction: row;
+    flex-wrap: wrap;
     flex: 1;
+    margin-right: 0;
+    min-width: 300px;
+    max-width: 1000px;
+    padding: 0;
 }
 
 .bloco-montado {
-    margin-right: 650px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    width: auto;
+    min-width: 350px;
+    height: auto;
 }
 
 .bloco {
@@ -195,11 +231,9 @@ select:focus {
     border-radius: 8px;
     background-color: white;
     width: 300px;
-    height: 600px;
+    min-height: 600px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s, box-shadow 0.3s;
-    
-    
 }
 
 .bloco:hover {
@@ -207,7 +241,7 @@ select:focus {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos específicos para a visualização do pedido (original) */
+/* Estilos específicos para a visualização do pedido */
 .pedido-view {
     position: relative;
     width: 100%;
@@ -242,7 +276,7 @@ select:focus {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #3498db;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
     border: none;
     cursor: pointer;
@@ -251,10 +285,11 @@ select:focus {
     justify-content: center;
     z-index: 10;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
 }
 
 .pedido-view button.spin:hover {
-    background-color: #2980b9;
+    background: var(--primary-dark);
 }
 
 .pedido-view.spin button.spin {
@@ -280,7 +315,7 @@ select:focus {
 .input-box label {
     margin-bottom: 2px;
     font-size: 12px;
-    color: rgb(0, 0, 0);
+    color: var(--dark);
 }
 
 .input-box select {
@@ -293,17 +328,27 @@ button {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     cursor: pointer;
-    background-color: #3498db;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
     border: none;
     border-radius: 6px;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: all 0.3s ease;
     font-weight: 500;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background: var(--primary-dark);
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(67, 97, 238, 0.35);
+}
+
+button:active {
+    transform: translateY(0);
 }
 
 hr {
@@ -312,7 +357,7 @@ hr {
     border-top: 1px solid #e2e8f0;
 }
 
-/* Lista de Pedidos (original) */
+/* Lista de Pedidos */
 #listaPedidos {
     display: flex;
     flex-direction: column;
@@ -328,6 +373,62 @@ hr {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* Container principal */
+.relative1 {
+    position: relative;
+    height: 500px;
+    width: 300px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.teste {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    margin: 20px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+/* Todos os elementos absolutos */
+.absolute0 {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+}
+
+/* Imagens */
+.absolute0 img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 300px;
+    max-height: 500px;
+    object-fit: contain;
+    image-rendering: crisp-edges;
+}
+
+/* Ajuste fino para a tampa */
+#divAlturaTampa {
+    z-index: 100;
+}
+
+/* Garante que os padrões fiquem sobre as lâminas */
+[class*="Padrao"] {
+    z-index: 110;
+}
+
+/* Garante que as lâminas fiquem sobre os blocos */
+[class*="Lamina"] {
+    z-index: 105;
+}
 
 /* Responsividade */
 @media (max-width: 768px) {
@@ -352,65 +453,10 @@ hr {
     .main-content {
         padding: 15px;
         margin-left: 80px;
+        width: calc(100% - 80px);
     }
 
     .bloco {
         width: 300px;
     }
 }
-
-/* Container principal */
-.relative1 {
-    position: relative;
-    height: 500px; /* Ajuste conforme necessário */
-    width: 700px;
-    margin: 24px;
-    margin-left: -90%;
-    
-}
-.teste {
-    display: flex;
-    flex-direction: row; /* Alinhamento lado a lado */
-    align-items: flex-start; /* Alinha no topo */
-    border: 1px solid #e2e8f0;
-    padding: 1.5rem;
-    gap: 3rem;
-    margin: 20px;
-}
-
-/* Todos os elementos absolutos */
-.absolute0 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
-    margin: 0;
-    padding: 0;
-}
-
-/* Imagens - ajuste crucial para sobreposição */
-.absolute0 img {
-    display: block;
-    max-width: 100%;
-    
-    height: auto;
-    image-rendering: crisp-edges; /* Melhora a qualidade para pixel art */
-}
-
-
-/* Ajuste fino para a tampa */
-#divAlturaTampa {
-    z-index: 100;
-}
-
-/* Garante que os padrões fiquem sobre as lâminas */
-[class*="Padrao"] {
-    z-index: 110;
-}
-
-/* Garante que as lâminas fiquem sobre os blocos */
-[class*="Lamina"] {
-    z-index: 105;
-}
-
-
