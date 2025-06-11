@@ -15,13 +15,13 @@
         <div id="clp1-grid" class="grid"></div>
         <button id="btn-atualizar-estoque">Atualizar Estoque</button>
 
-        
+
         <table>
             <thead>
-                
+
             </thead>
             <tbody id="clp-table">
-                
+
             </tbody>
         </table>
 
@@ -67,7 +67,7 @@
             });
         });
 
-       eventSource.addEventListener('clp2-data', function (event) {
+        eventSource.addEventListener('clp2-data', function (event) {
             const data = JSON.parse(event.data);
             document.getElementById('clp2').textContent = data.value;
         });

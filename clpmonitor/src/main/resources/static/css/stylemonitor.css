@@ -9,8 +9,7 @@
     --success: #4cc9f0;
     --warning: #f8961e;
     --danger: #ef233c;
-    
-    /* Novas cores harmonizadas */
+
     --sidebar-bg: rgba(26, 26, 46, 0.98);
     --card-bg: rgba(35, 35, 59, 0.95);
     --card-border: rgba(255, 255, 255, 0.1);
@@ -21,7 +20,7 @@
     --offline: #f87171;
 }
 
-/* Reset e Estilos Base */
+
 * {
     margin: 0;
     padding: 0;
@@ -43,7 +42,6 @@ body {
     min-height: 100vh;
 }
 
-/* Barra Lateral Moderna */
 .sidebar {
     width: 280px;
     background: var(--sidebar-bg);
@@ -175,7 +173,7 @@ body {
     flex: 1;
     min-width: 400px;
     max-width: 500px;
-    
+
     position: sticky;
     top: 30px;
 }
@@ -344,7 +342,7 @@ button:active {
     .content-wrapper {
         flex-direction: column;
     }
-    
+
     .form-container {
         position: static;
         max-width: 100%;
@@ -355,17 +353,17 @@ button:active {
     .sidebar {
         width: 80px;
     }
-    
-    .logo span, 
+
+    .logo span,
     .nav-link span {
         display: none;
     }
-    
+
     .main-content {
         margin-left: 80px;
         padding: 20px;
     }
-    
+
     .monitoring-container,
     .form-container {
         min-width: auto;

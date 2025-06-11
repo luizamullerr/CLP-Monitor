@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-       
+
     </style>
 </head>
 
@@ -22,7 +22,7 @@
                     <span>CLP Monitor</span>
                 </h1>
             </div>
-            
+
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="/" class="nav-link">
@@ -60,10 +60,8 @@
         <!-- Conteúdo Principal -->
         <main class="main-content">
             <div class="content-wrapper">
-                <!-- Monitoramento (esquerda) -->
                 <div class="monitoring-container">
                     <h1>Monitoramento</h1>
-
                     <h2>Estoque:</h2>
                     <div id="clp1-grid" class="grid"></div>
                     <button id="btn-atualizar-estoque">Atualizar Estoque</button>
@@ -72,8 +70,6 @@
                     <div id="expedicao-grid" class="expedicao-grid"></div>
                     <button id="btn-atualizar-expedicao">Atualizar Expedição</button>
                 </div>
-
-                <!-- Formulário (direita) -->
                 <div class="form-container">
                     <div class="clp-write-section" id="clp-write-container"
                         th:replace="~{fragments/formulario :: clp-write-fragment}">
@@ -122,13 +118,6 @@
         eventSource.addEventListener('clp3-data', function (event) {
             const data = JSON.parse(event.data);
             document.getElementById('clp3').textContent = data.value;
-        });
-
-        eventSource.addEventListener('clp4-data', function (event) {
-            const data = JSON.parse(event.data);
-            const byteArray = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
-            renderPedidos(byteArray);
-            document.getElementById('clp4').textContent = '-';
         });
 
         function renderPedidos(byteArray) {
@@ -185,4 +174,5 @@
         });
     </script>
 </body>
+
 </html>

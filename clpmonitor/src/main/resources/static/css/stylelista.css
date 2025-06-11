@@ -37,7 +37,6 @@ body {
   min-height: 100vh;
 }
 
-/* Estilos da barra lateral moderna */
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -194,7 +193,6 @@ body {
   margin-left: 280px;
 }
 
-/* Header Estilizado */
 .page-header {
   margin-bottom: 32px;
 }
@@ -541,4 +539,17 @@ hr {
   .refresh-btn {
     width: 100%;
   }
+}
+.excluir-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.excluir-btn:hover {
+  background-color: #c0392b;
 }

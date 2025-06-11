@@ -34,20 +34,23 @@
         <label>Valor:</label>
         <input type="text" th:field="*{value}" required />
 
-        <button type="button" id="btn-read-tag">Ler TAG</button>
+        
+        
+            <button type="button" id="btn-read-tag">Ler TAG</button>
+            <input type="text" id="read-tag" readonly style="flex: 1;" />
+        
 
-        <label>Tag Lida:</label>
-        <input type="text" id="read-tag" readonly /> <!-- Campo para mostrar leitura -->
-
-        <button type="submit">Enviar</button>
-    </form>
-
-    <div id="mensagem-tag">
-        <div th:if="${mensagem}" style="color: green;">
-            <p th:text="${mensagem}"></p>
+        
+        <div style="grid-column: 1 / -1; display: flex; justify-content: center;">
+            <button type="submit">Enviar</button>
         </div>
-        <div th:if="${erro}" style="color: red;">
-            <p th:text="${erro}"></p>
+
+        <div id="mensagem-tag">
+            <div th:if="${mensagem}" style="color: green;">
+                <p th:text="${mensagem}"></p>
+            </div>
+            <div th:if="${erro}" style="color: red;">
+                <p th:text="${erro}"></p>
+            </div>
         </div>
-    </div>
 </div>
