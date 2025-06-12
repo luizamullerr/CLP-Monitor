@@ -4,7 +4,7 @@
 <head>
     <title>Painel Industrial</title>
     <style>
-
+        /* Você pode adicionar CSS aqui, se necessário */
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/stylehome.css}">
@@ -59,7 +59,6 @@
         <main class="main-content">
             <header class="page-header">
                 <h1>Página Inicial</h1>
-
             </header>
 
             <div class="dashboard-cards">
@@ -73,7 +72,6 @@
                 <div class="dashboard-card">
                     <a href="/loja-pedido">
                         <h3><i class="fas fa-warehouse"></i> Loja</h3>
-
                         <p>Visualize e gerencie todos os blocos disponíveis no estoque da fábrica.</p>
                     </a>
                 </div>
@@ -81,7 +79,6 @@
                 <div class="dashboard-card">
                     <a href="/listaPedido">
                         <h3><i class="fas fa-clipboard-list"></i> Gestão de Pedidos</h3>
-
                         <p>Controle completo dos pedidos de produção em andamento.</p>
                     </a>
                 </div>
@@ -89,138 +86,40 @@
                 <div class="dashboard-card">
                     <a href="/block">
                         <h3><i class="fas fa-cog"></i> Configuração</h3>
-
                         <p>Personalize os parâmetros do sistema e configurações dos equipamentos.</p>
                     </a>
                 </div>
-
             </div>
+
             <header>
                 <h1>Bancada Smart 4.0</h1>
             </header>
+<div class="divBancadaStatus">
+    <label for="ipBase">IP Base:</label>
+    <input type="text" id="ipBase" value="192.168.0.0" />
+    <button id="btnConectar" onclick="conectarBancada()">Conectar</button>
+</div>
 
-            <div class="bancada-container">
-                <div class="bancada-item">
-                    <a th:href="@{/estoque}">
-                        <img id="bancada1" th:src="@{/assets/bancada/Bancada_parte_1.png}" alt="Estoque"
-                            data-descricao="Gerencia a entrada e saída dos blocos.">
-                    </a>
-                </div>
-                <div class="bancada-item">
-                    <a th:href="@{/processo}">
-                        <img id="bancada2" th:src="@{/assets/bancada/Bancada_parte_2.png}" alt="Processo"
-                            data-descricao="Controla o processo de produção em tempo real.">
-                    </a>
-                </div>
-                <div class="bancada-item">
-                    <a th:href="@{/montagem}">
-                        <img id="bancada3" th:src="@{/assets/bancada/Bancada_parte_3.png}" alt="Montagem"
-                            data-descricao="Área responsável pela montagem dos kits.">
-                    </a>
-                </div>
-                <div class="bancada-item">
-                    <a th:href="@{/expedicao}">
-                        <img id="bancada4" th:src="@{/assets/bancada/Bancada_parte_4.png}" alt="Expedição"
-                            data-descricao="Prepara os blocos para envio ao cliente.">
-                    </a>
-                </div>
-                <div id="btnPing" style="text-align: center; margin-top: 20px;">
-                    <button onclick="pingBancada()">Ping</button>
-                </div>
+<div class="bancada-container">
+    <img id="bancada4" th:src="@{/assets/bancada/Bancada.png}" class="bancada-imagem">
+    
+    <!-- Inputs posicionados sobre cada etapa -->
+    <div class="ip-input-container">
+        <input type="text" id="hostIpEstoque" class="bancada-input estoque" readonly />
+        <input type="text" id="hostIpProcesso" class="bancada-input processo" readonly />
+        <input type="text" id="hostIpMontagem" class="bancada-input montagem" readonly />
+        <input type="text" id="hostIpExpedicao" class="bancada-input expedicao" readonly />
+    </div>
+</div>
+
+           
+                
             </div>
+        </main>
+    </div>
 
-            <div class="barras-container">
-
-                <!-- Barra de progresso principal -->
-                <div class="barra-container">
-                    <label class="barra-label">Montagem Total do Bloco</label>
-                    <div id="barraPrincipal" class="barra-preenchida">0%</div>
-                </div>
-
-                <!-- Barra de progresso secundária -->
-                <div class="barra-container">
-                    <label class="barra-label">Etapas Internas</label>
-                    <div id="etapa-texto" class="etapa-texto">Iniciando...</div>
-                    <div id="barraSecundaria" class="barra-preenchida">0%</div>
-                </div>
-
-            </div>
-
-            <script>
-                const descricao = document.getElementById('descricao-dinamica');
-                document.querySelectorAll('.bancada-item img').forEach(img => {
-                    img.addEventListener('mouseenter', () => {
-                        descricao.textContent = img.dataset.descricao;
-                    });
-                    img.addEventListener('mouseleave', () => {
-                        descricao.textContent = 'Passe o mouse sobre uma área da bancada para ver a descrição.';
-                    });
-                });
-
-                // Etapas internas da montagem
-                const etapas = [
-                    "Retirando Bloco da Bancada de Estoque",
-                    "Esteira Movendo Bloco para Bancada de Montagem",
-                    "Colocando as Lâminas no Bloco",
-                    "Reposicionando Bloco para Esteira",
-                    "Esteira Movendo Bloco para Bancada de Expedição",
-                    "Reposiciona Bloco da Esteira para Bancada de Expedição"
-                ];
-
-                const barraSecundaria = document.getElementById("barraSecundaria");
-                const barraPrincipal = document.getElementById("barraPrincipal");
-                const textoEtapa = document.getElementById("etapa-texto");
-
-                let etapaAtual = 0;
-                let progressoInterno = 0;
-                let progressoPrincipal = 0;
-
-                function iniciarEtapa() {
-                    progressoInterno = 0;
-                    textoEtapa.textContent = etapas[etapaAtual];
-
-                    const intervalo = setInterval(() => {
-                        if (progressoInterno >= 100) {
-                            clearInterval(intervalo);
-
-                            // Avança a barra principal proporcionalmente a cada etapa
-                            progressoPrincipal = Math.round(((etapaAtual + 1) / etapas.length) * 100);
-                            barraPrincipal.style.width = progressoPrincipal + "%";
-                            barraPrincipal.textContent = progressoPrincipal + "%";
-
-                            etapaAtual++;
-
-                            if (etapaAtual < etapas.length) {
-                                setTimeout(iniciarEtapa, 500); // próxima etapa com pequena pausa
-                            } else {
-                                textoEtapa.textContent = "Processo de montagem concluído.";
-                            }
-
-                        } else {
-                            progressoInterno += 5;
-                            barraSecundaria.style.width = progressoInterno + "%";
-                            barraSecundaria.textContent = progressoInterno + "%";
-                        }
-                    }, 200); // Duração de 4 segundos por etapa (5% a cada 200ms)
-                }
-
-                iniciarEtapa();
-
-                function pingBancada() {
-                    const bancadaImgs = [
-                        { id: "bancada1", green: "bancada/Bancada_parte_1_GREEN.png", red: "bancada/Bancada_parte_1_RED.png" },
-                        { id: "bancada2", green: "bancada/Bancada_parte_2_GREEN.png", red: "bancada/Bancada_parte_2_RED.png" },
-                        { id: "bancada3", green: "bancada/Bancada_parte_3_GREEN.png", red: "bancada/Bancada_parte_3_RED.png" },
-                        { id: "bancada4", green: "bancada/Bancada_parte_4_GREEN.png", red: "bancada/Bancada_parte_4_RED.png" },
-                    ];
-
-                    bancadaImgs.forEach(b => {
-                        const success = Math.random() >= 0.5;
-                        const imagePath = success ? `/assets/${b.green}` : `/assets/${b.red}`;
-                        document.getElementById(b.id).src = imagePath;
-                    });
-                }
-            </script>
+    <!-- Script JavaScript ao final do body -->
+    <script th:src="@{/js/smart.js}"></script>
 </body>
 
 </html>

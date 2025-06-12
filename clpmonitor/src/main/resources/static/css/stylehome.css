@@ -283,22 +283,163 @@ body {
     }
 }
 .bancada-container {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 2px;
-    flex-wrap: nowrap;
+    margin-top: 20px;
+  }
+
+  .bancada-imagem {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .status-label {
+    position: absolute;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    background-color: gray;
+    transition: background-color 0.3s;
+  }
+  a{
+    text-decoration: none;
+  }
+
+  .online { background-color: green; }
+  .offline { background-color: red; }
+  .pause { background-color: orange; }
+
+  /* Posicionamento baseado na imagem */
+  .estoque-label { left: 7%; top: 5%; }
+  .processo-label { left: 32%; top: 5%; }
+  .montagem-label { left: 57%; top: 5%; }
+  .expedicao-label { left: 82%; top: 5%; }
+
+
+/* Container principal da bancada */
+.bancada-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
 }
 
-.bancada-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+/* Imagem da bancada */
+.bancada-imagem {
+    width: 100%;
+    display: block;
 }
-a {
-    text-decoration: none;
-  
+
+/* Container dos inputs */
+.ip-input-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilo base para os inputs */
+.bancada-input {
+    /* Remova ou comente estas linhas: */
+    /* background: transparent; */
+    /* color: white; */
+    
+    /* Mantenha o resto */
+    position: absolute;
+    width: 120px;
+    padding: 6px;
+    text-align: center;
+    border: 2px solid #4361ee;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 10;
+}
+
+.bancada-input.online {
+    color: rgb(0, 255, 0) !important;
+    border-color: rgb(0, 255, 0) !important;
+}
+
+.bancada-input.offline {
+    color: rgb(255, 0, 0) !important;
+    border-color: rgb(255, 0, 0) !important;
+}
+
+.bancada-input.pause {
+    color: rgb(255, 255, 0) !important;
+    border-color: rgb(255, 255, 0) !important;
+}
+/* Posicionamento específico para cada input */
+.bancada-input.estoque {
+    top: 45%;
+    left: 10%;
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+.bancada-input.processo {
+    top: 45%;
+    left: 30%;
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+.bancada-input.montagem {
+    top: 45%;
+    left: 53%;
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+.bancada-input.expedicao {
+    top: 45%;
+    left: 78%;
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+/* Estilo para o container do IP Base */
+.divBancadaStatus {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.divBancadaStatus label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.divBancadaStatus #ipBase {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+    font-size: 14px;
+}
+
+.divBancadaStatus #btnConectar {
+    padding: 8px 16px;
+    background-color: #4361ee;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.divBancadaStatus #btnConectar:hover {
+    background-color: #3a56d4;
 }

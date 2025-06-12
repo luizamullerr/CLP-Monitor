@@ -7,6 +7,12 @@ import com.example.clpmonitor.model.TagWriteRequest;
 import com.example.clpmonitor.service.ClpSimulatorService;
 import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.PlcConnector;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -172,4 +178,20 @@ public class ClpController {
         }
         return hexString.toString();
     }
+    
+@PostMapping("/smart/ping")
+    public Map<String, Boolean> pingHosts(@RequestBody Map<String, String> ips) {
+        Map<String, Boolean> resultados = new HashMap<>();
+        ips.forEach((nome, ip) -> {
+            try {
+                boolean online = InetAddress.getByName(ip).isReachable(2000);
+                resultados.put(nome, online);
+            } catch (IOException e) {
+                resultados.put(nome, false);
+            }
+        });
+        return resultados;
+    }
+
+
 }
