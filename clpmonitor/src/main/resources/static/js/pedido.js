@@ -398,7 +398,7 @@ function verBlocosMontados() {
     }
 
     for (let blocoNum = 1; blocoNum <= 3; blocoNum++) {
-        for (let pos = 1; pos <= 2; pos++) {
+        for (let pos = 1; pos <= 3; pos++) {
             const padraoEl = document.getElementById(`padrao${pos}andar${blocoNum}Pedido`);
             if (padraoEl) {
                 padraoEl.src = `assets/padroes/padrao0-${pos}.png`;
@@ -414,7 +414,7 @@ function verBlocosMontados() {
                 laminaImgEl.src = `assets/laminas/lamina${pos}-${laminaEl.value}.png`;
 
 
-                if (pos <= 2) {
+                if (pos <= 3) {
                     const padraoEl = document.getElementById(`padrao${pos}andar${blocoNum}Pedido`);
                     const padraoSelectEl = document.getElementById(`l${pos}-pattern-${blocoNum}`);
 
@@ -460,7 +460,7 @@ function changePedidoView(id) {
             document.getElementById("lamina" + id + "-3").src = l1Color ? "assets/laminas/lamina3-" + l1Color + ".png" : "#";
             document.getElementById("lamina" + id + "-1").src = l3Color ? "assets/laminas/lamina1-" + l3Color + ".png" : "#";
 
-            const padrao2 = document.getElementById("padrao" + id + "-2");
+            const padrao2 = document.getElementById("padrao" + id + "-3");
             padrao2.src = l3Pattern ? "assets/padroes/padrao" + l3Pattern + "-1.png" : "#";
 
             // Aplica filtro invert se a cor correspondente for 5

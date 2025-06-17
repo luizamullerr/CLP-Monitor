@@ -12,4 +12,6 @@ public class HomeController {
         // Adicione quaisquer atributos necessários ao modelo
         return "home"; // Isso deve corresponder ao nome do arquivo sem extensão
     }
+
+    
 }

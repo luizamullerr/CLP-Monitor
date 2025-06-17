@@ -1,5 +1,23 @@
 package com.example.clpmonitor.controller;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.example.clpmonitor.model.DbBlock;
 import com.example.clpmonitor.model.Tag;
 import com.example.clpmonitor.model.TagReadRequest;
@@ -7,18 +25,6 @@ import com.example.clpmonitor.model.TagWriteRequest;
 import com.example.clpmonitor.service.ClpSimulatorService;
 import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.PlcConnector;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Controller
 public class ClpController {
@@ -35,7 +41,7 @@ public class ClpController {
         model.addAttribute("tag", new Tag());
         return "monitor";
     }
-    
+
     @GetMapping("/atualizar-estoque")
     @ResponseBody
     public void atualizarEstoque() {
@@ -166,7 +172,8 @@ public class ClpController {
 
     @PostMapping("/block")
     public String salvarBlock(@ModelAttribute("block") DbBlock tag) {
-        System.out.println("Salvando: " + tag.getPosition() + ", cor: " + tag.getColor() + ", storage: " + tag.getStorageId());
+        System.out.println(
+                "Salvando: " + tag.getPosition() + ", cor: " + tag.getColor() + ", storage: " + tag.getStorageId());
         dbBlockService.cadastrarBloco(tag); // Usa o service com lógica de update
         return "redirect:/block";
     }
@@ -178,20 +185,51 @@ public class ClpController {
         }
         return hexString.toString();
     }
-    
-@PostMapping("/smart/ping")
-    public Map<String, Boolean> pingHosts(@RequestBody Map<String, String> ips) {
+
+    @PostMapping("/smart/ping") // Endpoint completo será /api/smart/ping
+    public ResponseEntity<Map<String, Boolean>> pingHosts(@RequestBody Map<String, String> ips) {
         Map<String, Boolean> resultados = new HashMap<>();
-        ips.forEach((nome, ip) -> {
-            try {
-                boolean online = InetAddress.getByName(ip).isReachable(2000);
-                resultados.put(nome, online);
-            } catch (IOException e) {
-                resultados.put(nome, false);
-            }
-        });
-        return resultados;
+        try {
+            ips.forEach((nome, ip) -> {
+                try {
+                    boolean online = InetAddress.getByName(ip).isReachable(2000);
+                    resultados.put(nome, online);
+                } catch (IOException e) {
+                    resultados.put(nome, false);
+                }
+            });
+            return ResponseEntity.ok(resultados);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
+    @PostMapping("/start-leituras")
+    public ResponseEntity<String> startLeituras(@RequestBody Map<String, String> ips) {
+        // Sua lógica para iniciar as leituras
+        return ResponseEntity.ok("Leituras iniciadas");
+    }
+
+    
+    @PostMapping("/stop-leituras")
+    public ResponseEntity<String> stopLeituras() {
+        try {
+            // 1. Parar todas as leituras ativas
+            //simulatorService.pararLeituras();
+            
+            // 2. Parar eventos SSE (se estiver usando)
+            //simulatorService.pararConexoesSSE();
+            
+            // 3. Limpar cache/estado se necessário
+            //simulatorService.limparEstadoLeituras();
+            
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"status\": \"success\", \"message\": \"Leituras paradas com sucesso\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
 
 }

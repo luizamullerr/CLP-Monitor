@@ -295,9 +295,14 @@ button:active {
     border-radius: 6px;
     width: 100%;
     font-size: 14px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--card-bg);;
     color: var(--text-light);
     transition: border-color 0.3s ease;
+}
+
+select option:checked {
+    color: black !important;
+    background-color: var(--card-bg);;
 }
 
 .clp-write-section input:focus,

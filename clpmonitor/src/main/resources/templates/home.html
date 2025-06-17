@@ -57,9 +57,7 @@
 
         <!-- Conteúdo Principal -->
         <main class="main-content">
-            <header class="page-header">
-                <h1>Página Inicial</h1>
-            </header>
+            
 
             <div class="dashboard-cards">
                 <div class="dashboard-card">
@@ -94,23 +92,23 @@
             <header>
                 <h1>Bancada Smart 4.0</h1>
             </header>
-<div class="divBancadaStatus">
-    <label for="ipBase">IP Base:</label>
-    <input type="text" id="ipBase" value="192.168.0.0" />
-    <button id="btnConectar" onclick="conectarBancada()">Conectar</button>
-</div>
-
-<div class="bancada-container">
-    <img id="bancada4" th:src="@{/assets/bancada/Bancada.png}" class="bancada-imagem">
-    
-    <!-- Inputs posicionados sobre cada etapa -->
-    <div class="ip-input-container">
-        <input type="text" id="hostIpEstoque" class="bancada-input estoque" readonly />
-        <input type="text" id="hostIpProcesso" class="bancada-input processo" readonly />
-        <input type="text" id="hostIpMontagem" class="bancada-input montagem" readonly />
-        <input type="text" id="hostIpExpedicao" class="bancada-input expedicao" readonly />
-    </div>
-</div>
+            <div class="divBancadaStatus">
+                <label for="ipBase">IP Base:</label>
+                <input type="text" id="ipBase"/>
+                <button id="btnConectar" onclick="conectarBancada()">Conectar</button>
+            </div>
+            
+            <div class="bancada-container">
+                <img id="bancada4" th:src="@{/assets/bancada/Bancada.png}" class="bancada-imagem">
+                
+                <!-- Inputs posicionados sobre cada etapa -->
+                <div class="ip-input-container">
+                    <input type="text" id="hostIpEstoque" class="bancada-input estoque" readonly />
+                    <input type="text" id="hostIpProcesso" class="bancada-input processo" readonly />
+                    <input type="text" id="hostIpMontagem" class="bancada-input montagem" readonly />
+                    <input type="text" id="hostIpExpedicao" class="bancada-input expedicao" readonly />
+                </div>
+            </div>
 
            
                 
@@ -119,7 +117,10 @@
     </div>
 
     <!-- Script JavaScript ao final do body -->
-    <script th:src="@{/js/smart.js}"></script>
+    <script src="/js/smart.js"></script>
 </body>
 
 </html>
+
+
+

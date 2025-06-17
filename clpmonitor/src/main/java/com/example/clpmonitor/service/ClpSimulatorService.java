@@ -1,9 +1,7 @@
 package com.example.clpmonitor.service;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.clpmonitor.model.ClpData;
-import com.example.clpmonitor.model.Tag;
 
 import jakarta.annotation.PostConstruct;
 
@@ -162,6 +159,21 @@ public class ClpSimulatorService {
                 emitters.remove(emitter);
             }
         }
+    }
+
+    public void pararConexoesSSE() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'pararConexoesSSE'");
+    }
+
+    public void pararLeituras() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'pararLeituras'");
+    }
+
+    public void limparEstadoLeituras() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'limparEstadoLeituras'");
     }
 
 }
