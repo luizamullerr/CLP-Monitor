@@ -3,11 +3,16 @@ package com.example.clpmonitor.controller;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +24,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.clpmonitor.model.DbBlock;
+import com.example.clpmonitor.model.PlcReaderTask;
 import com.example.clpmonitor.model.Tag;
 import com.example.clpmonitor.model.TagReadRequest;
 import com.example.clpmonitor.model.TagWriteRequest;
 import com.example.clpmonitor.service.ClpSimulatorService;
+import com.example.clpmonitor.service.ClpSimulatorService.PlcConnectionManager;
+import static com.example.clpmonitor.service.ClpSimulatorService.atualizarCache;
 import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.PlcConnector;
 
@@ -34,6 +42,15 @@ public class ClpController {
 
     @Autowired
     private DbBlockService dbBlockService;
+
+    private final Map<String, Future<?>> leituraFutures = new ConcurrentHashMap<>();
+
+    private final ScheduledExecutorService leituraExecutor = Executors.newScheduledThreadPool(4);
+
+    public static List<Integer> dadosClp1;
+    public static List<Integer> dadosClp2;
+    public static List<Integer> dadosClp3;
+    public static List<Integer> dadosClp4;
 
     @GetMapping("/monitor")
     public String monitor(Model model) {
@@ -206,30 +223,67 @@ public class ClpController {
 
     @PostMapping("/start-leituras")
     public ResponseEntity<String> startLeituras(@RequestBody Map<String, String> ips) {
-        // Sua lógica para iniciar as leituras
-        return ResponseEntity.ok("Leituras iniciadas");
+        ips.forEach((nome, ip) -> {
+            if (!leituraFutures.containsKey(nome)) {
+                PlcConnector plcConnector = PlcConnectionManager.getConexao(ip);
+                if (plcConnector == null) {
+                    System.err.println("Erro ao obter conexão com o CLP: " + ip);
+                    return; // ignora esse CLP e continua com os demais
+                }
+
+                PlcReaderTask task = null;
+                switch (nome.toLowerCase()) {
+                    case "estoque" -> task = new PlcReaderTask(plcConnector, nome, 9, 0, 111, dados -> {
+                        ClpController.dadosClp1 = dados;
+                        ClpSimulatorService.clpEstoque(ip, dados);
+                        atualizarCache("estoque", dados);
+                    });
+
+                    case "processo" -> task = new PlcReaderTask(plcConnector, nome, 2, 0, 9, dados -> {
+                        ClpController.dadosClp2 = dados;
+                        ClpSimulatorService.clpProcesso(ip, dados);
+                        atualizarCache("processo", dados);
+                    });
+
+                    case "montagem" -> task = new PlcReaderTask(plcConnector, nome, 57, 0, 9, dados -> {
+                        ClpController.dadosClp3 = dados;
+                        ClpSimulatorService.clpMontagem(ip, dados);
+                        atualizarCache("montagem", dados);
+                    });
+
+                    case "expedicao" -> task = new PlcReaderTask(plcConnector, nome, 9, 0, 48, dados -> {
+                        ClpController.dadosClp4 = dados;
+                        ClpSimulatorService.clpExpedicao(ip, dados);
+                        atualizarCache("expedicao", dados);
+                    });
+
+                    default -> {
+                        System.err.println("Nome de CLP inválido: " + nome);
+                        return;
+                    }
+                }
+
+                if (task != null) {
+                    ScheduledFuture<?> future = leituraExecutor.scheduleAtFixedRate(task, 0, 800,
+                            TimeUnit.MILLISECONDS);
+                    leituraFutures.put(nome, future);
+                }
+            }
+        });
+
+        return ResponseEntity.ok("Leituras com PlcReaderTask iniciadas.");
     }
 
-    
     @PostMapping("/stop-leituras")
     public ResponseEntity<String> stopLeituras() {
-        try {
-            // 1. Parar todas as leituras ativas
-            //simulatorService.pararLeituras();
-            
-            // 2. Parar eventos SSE (se estiver usando)
-            //simulatorService.pararConexoesSSE();
-            
-            // 3. Limpar cache/estado se necessário
-            //simulatorService.limparEstadoLeituras();
-            
-            return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("{\"status\": \"success\", \"message\": \"Leituras paradas com sucesso\"}");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}");
-        }
+        leituraFutures.forEach((nome, future) -> {
+            future.cancel(true);
+            System.out.println("Thread de leitura '" + nome + "' cancelada.");
+        });
+        leituraFutures.clear();
+        PlcConnectionManager.encerrarTodasAsConexoes();
+        return ResponseEntity.ok("Leituras interrompidas.");
     }
+
 
 }

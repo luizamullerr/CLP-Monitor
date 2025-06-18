@@ -2,6 +2,40 @@
 let conectado = false;
 let pausado = 0;
 
+// Função para atualizar o status visual da conexão
+function atualizarStatusConexao(status, mensagem) {
+    const statusElement = document.getElementById("connectionStatus");
+    statusElement.textContent = mensagem;
+    
+    // Remove todas as classes de status
+    statusElement.className = "connection-status";
+    
+    // Adiciona a classe correspondente ao status
+    switch(status) {
+        case 'waiting':
+            statusElement.classList.add('waiting');
+            break;
+        case 'connecting':
+            statusElement.classList.add('connecting');
+            break;
+        case 'connected':
+            statusElement.classList.add('connected');
+            break;
+        case 'paused':
+            statusElement.classList.add('paused');
+            break;
+        case 'error':
+            statusElement.classList.add('error');
+            break;
+    }
+}
+
+// Função para capitalizar strings
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Função principal para conectar/desconectar a bancada
 function conectarBancada() {
     const btn = document.getElementById("btnConectar");
     const ipBase = document.getElementById("ipBase").value.trim();
@@ -29,6 +63,8 @@ function conectarBancada() {
     if (!conectado) {
         btn.disabled = true;
         btn.textContent = "Conectando...";
+        atualizarStatusConexao('connecting', "Conectando...");
+
         fetch("http://localhost:8081/smart/ping", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -55,34 +91,31 @@ function conectarBancada() {
             });
 
             if (falha) {
-                alert("Falha ao conectar com uma ou mais bancadas.");
-                document.querySelectorAll('.bancada-input').forEach(input => {
-                    input.style.color = "rgb(255,0,0)";
-                });
-                btn.textContent = "Conectar";
-                conectado = false;
-                sessionStorage.removeItem("bancadaConectada");
-                return; // não segue para start-leituras
+                throw new Error("Falha ao conectar com uma ou mais bancadas.");
             }
-
-            // Inicia as leituras
+        
             return fetch("http://localhost:8081/start-leituras", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(ips)
-            })
-            .then(() => {
-                iniciarSSEClps();
-                pausado = 0;
-
-                btn.textContent = "Desconectar";
-                conectado = true;
-                sessionStorage.setItem("bancadaConectada", "true");
             });
+        })
+        .then(() => {
+            iniciarSSEClps();
+            pausado = 0;
+
+            if (pausado === 0) {
+                const inputs = document.querySelectorAll('.divBancadaStatus input');
+            }
+
+            btn.textContent = "Desconectar";
+            conectado = true;
+            atualizarStatusConexao('connected', "Conectado");
+            sessionStorage.setItem("bancadaConectada", "true");
         })
         .catch(error => {
             console.error("Erro detalhado:", error);
-            alert("Erro ao conectar: " + error.message);
+            atualizarStatusConexao('error', "Erro na conexão");
 
             document.querySelectorAll('.bancada-input').forEach(input => {
                 input.style.color = "rgb(255,0,0)";
@@ -95,17 +128,19 @@ function conectarBancada() {
         .finally(() => {
             btn.disabled = false;
         });
+
     } else {
         // Código para desconexão
         pararSSEClps();
         pausado = 1;
+        atualizarStatusConexao('paused', "Em pausa");
 
         document.querySelectorAll('.bancada-input').forEach(input => {
             input.style.color = "rgb(255,255,0)";
         });
 
-        fetch("http://localhost:8081/stop-leituras", { 
-            method: "POST" 
+        fetch("http://localhost:8081/stop-leituras", {
+            method: "POST"
         })
         .catch(error => {
             console.error("Erro ao parar leituras:", error);
@@ -117,10 +152,13 @@ function conectarBancada() {
     }
 }
 
+// Função para iniciar as leituras SSE
 function iniciarSSEClps() {
     console.log("Leituras iniciadas");
+    // Aqui você pode implementar a lógica SSE se necessário
 }
 
+// Função para parar as leituras SSE
 function pararSSEClps() {
     if (window.eventSource) {
         window.eventSource.close();
@@ -129,6 +167,23 @@ function pararSSEClps() {
     console.log("Conexões SSE paradas");
 }
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
+// Inicialização quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', function() {
+    // Configura status inicial
+    atualizarStatusConexao('waiting', "Aguardando solicitação de conexão");
+    
+    // Verifica se havia uma conexão ativa em sessionStorage
+    if (sessionStorage.getItem("bancadaConectada") === "true") {
+        document.getElementById("btnConectar").textContent = "Desconectar";
+        conectado = true;
+        atualizarStatusConexao('connected', "Conectado");
+    }
+    
+    // Restaura cores dos inputs se existirem no sessionStorage
+    document.querySelectorAll('.bancada-input').forEach(input => {
+        const cor = sessionStorage.getItem(`corFonte_${input.id}`);
+        if (cor) {
+            input.style.color = cor;
+        }
+    });
+});

@@ -451,3 +451,40 @@ h1{
 .divBancadaStatus #btnConectar:hover {
     background-color: #3a56d4;
 }
+
+/*Conexão do home*/
+.connection-status {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    background-color: #f0f0f0;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.connection-status.waiting {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.connection-status.connecting {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.connection-status.connected {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.connection-status.paused {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.connection-status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
