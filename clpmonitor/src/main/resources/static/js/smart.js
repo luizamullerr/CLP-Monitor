@@ -6,12 +6,12 @@ let pausado = 0;
 function atualizarStatusConexao(status, mensagem) {
     const statusElement = document.getElementById("connectionStatus");
     statusElement.textContent = mensagem;
-    
+
     // Remove todas as classes de status
     statusElement.className = "connection-status";
-    
+
     // Adiciona a classe correspondente ao status
-    switch(status) {
+    switch (status) {
         case 'waiting':
             statusElement.classList.add('waiting');
             break;
@@ -70,64 +70,64 @@ function conectarBancada() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(ips)
         })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`Erro HTTP ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(status => {
-            let falha = false;
-
-            Object.entries(status).forEach(([nome, ok]) => {
-                const inputId = `hostIp${capitalize(nome)}`;
-                const input = document.getElementById(inputId);
-                input.style.color = ok ? "rgb(0,255,0)" : "rgb(255,0,0)";
-                sessionStorage.setItem(`corFonte_${inputId}`, input.style.color);
-
-                if (!ok) {
-                    falha = true;
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Erro HTTP ${res.status}`);
                 }
+                return res.json();
+            })
+            .then(status => {
+                let falha = false;
+
+                Object.entries(status).forEach(([nome, ok]) => {
+                    const inputId = `hostIp${capitalize(nome)}`;
+                    const input = document.getElementById(inputId);
+                    input.style.color = ok ? "rgb(0,255,0)" : "rgb(255,0,0)";
+                    sessionStorage.setItem(`corFonte_${inputId}`, input.style.color);
+
+                    if (!ok) {
+                        falha = true;
+                    }
+                });
+
+                if (falha) {
+                    throw new Error("Falha ao conectar com uma ou mais bancadas.");
+                }
+
+                return fetch("http://localhost:8081/start-leituras", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(ips)
+                });
+            })
+            .then(() => {
+                iniciarSSEClps();
+                pausado = 0;
+
+                if (pausado === 0) {
+                    const inputs = document.querySelectorAll('.divBancadaStatus input');
+                }
+
+                btn.textContent = "Desconectar";
+                conectado = true;
+                atualizarStatusConexao('connected', "Conectado");
+                
+            })
+            .catch(error => {
+                console.error("Erro detalhado:", error);
+                atualizarStatusConexao('error', "Erro na conexão");
+
+                document.querySelectorAll('.bancada-input').forEach(input => {
+                    input.style.color = "rgb(255,0,0)";
+                });
+
+                btn.textContent = "Conectar";
+                conectado = false;
+                sessionStorage.removeItem("bancadaConectada");
+            })
+            .finally(() => {
+                btn.disabled = false;
             });
-
-            if (falha) {
-                throw new Error("Falha ao conectar com uma ou mais bancadas.");
-            }
-        
-            return fetch("http://localhost:8081/start-leituras", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(ips)
-            });
-        })
-        .then(() => {
-            iniciarSSEClps();
-            pausado = 0;
-
-            if (pausado === 0) {
-                const inputs = document.querySelectorAll('.divBancadaStatus input');
-            }
-
-            btn.textContent = "Desconectar";
-            conectado = true;
-            atualizarStatusConexao('connected', "Conectado");
-            sessionStorage.setItem("bancadaConectada", "true");
-        })
-        .catch(error => {
-            console.error("Erro detalhado:", error);
-            atualizarStatusConexao('error', "Erro na conexão");
-
-            document.querySelectorAll('.bancada-input').forEach(input => {
-                input.style.color = "rgb(255,0,0)";
-            });
-
-            btn.textContent = "Conectar";
-            conectado = false;
-            sessionStorage.removeItem("bancadaConectada");
-        })
-        .finally(() => {
-            btn.disabled = false;
-        });
 
     } else {
         // Código para desconexão
@@ -142,20 +142,22 @@ function conectarBancada() {
         fetch("http://localhost:8081/stop-leituras", {
             method: "POST"
         })
-        .catch(error => {
-            console.error("Erro ao parar leituras:", error);
-        });
+            .catch(error => {
+                console.error("Erro ao parar leituras:", error);
+            });
 
         btn.textContent = "Conectar";
         conectado = false;
         sessionStorage.removeItem("bancadaConectada");
     }
+
 }
 
 // Função para iniciar as leituras SSE
 function iniciarSSEClps() {
     console.log("Leituras iniciadas");
-    // Aqui você pode implementar a lógica SSE se necessário
+    const dadosLidos = new Uint8Array([0x10, 0xFF, 0x00, 0xAB, 0x7E, 0x5D]);
+    mostrarHexNaTela(dadosLidos);
 }
 
 // Função para parar as leituras SSE
@@ -167,17 +169,34 @@ function pararSSEClps() {
     console.log("Conexões SSE paradas");
 }
 
+
+function exibirBytesHex(bytes) {
+    if (!bytes || typeof bytes[0] === 'undefined') {
+        console.error("Entrada inválida: esperado array de bytes");
+        return "";
+    }
+
+    // Aceita Uint8Array ou array normal
+    return Array.from(bytes)
+        .map(byte => {
+            const val = (typeof byte === 'number') ? byte : byte.charCodeAt(0);
+            return val.toString(16).padStart(2, '0').toUpperCase();
+        })
+        .join(' ');
+}
+
+function mostrarHexNaTela(bytes) {
+    const divHex = document.getElementById("saidaHex");
+    if (divHex) {
+        divHex.textContent = exibirBytesHex(bytes);
+    }
+}
+
+
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
     // Configura status inicial
     atualizarStatusConexao('waiting', "Aguardando solicitação de conexão");
-    
-    // Verifica se havia uma conexão ativa em sessionStorage
-    if (sessionStorage.getItem("bancadaConectada") === "true") {
-        document.getElementById("btnConectar").textContent = "Desconectar";
-        conectado = true;
-        atualizarStatusConexao('connected', "Conectado");
-    }
     
     // Restaura cores dos inputs se existirem no sessionStorage
     document.querySelectorAll('.bancada-input').forEach(input => {
@@ -186,4 +205,9 @@ document.addEventListener('DOMContentLoaded', function() {
             input.style.color = cor;
         }
     });
+    
+    // Teste inicial para verificar se o elemento saidaHex está funcionando
+    setTimeout(() => {
+        mostrarHexNaTela([0x48, 0x45, 0x4C, 0x4C, 0x4F]); // "HELLO" em hex
+    }, 500);
 });

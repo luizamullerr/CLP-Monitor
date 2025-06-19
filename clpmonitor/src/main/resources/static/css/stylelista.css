@@ -1,19 +1,22 @@
 :root {
   --primary: #4361ee;
   --primary-light: #4895ef;
-  --primary-dark: #3f37c9;
+  --primary-dark: #3a0ca3;
   --secondary: #7209b7;
   --accent: #f72585;
   --dark: #1a1a2e;
   --light: #f8f9fa;
-  --gray: #adb5bd;
   --success: #4cc9f0;
   --warning: #f8961e;
   --danger: #ef233c;
-  --sidebar-bg: rgba(26, 26, 46, 0.95);
-  --sidebar-active: rgba(67, 97, 238, 0.3);
-  --card-bg: #ffffff;
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --sidebar-bg: rgba(26, 26, 46, 0.98);
+  --card-bg: rgba(35, 35, 59, 0.95);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-light: #f0f2f5;
+  --text-muted: rgba(240, 242, 245, 0.7);
+  --grid-bg: rgba(255, 255, 255, 0.9);
+  --online: #4ade80;
+  --offline: #f87171;
 }
 
 * {
@@ -37,14 +40,11 @@ body {
   min-height: 100vh;
 }
 
-.app-container {
-  display: flex;
-  min-height: 100vh;
-}
+/*MENU LATERAL*/
 
 .sidebar {
   width: 280px;
-  background: rgba(26, 26, 46, 0.95);
+  background: var(--sidebar-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   height: 100vh;
@@ -55,15 +55,14 @@ body {
   flex-direction: column;
   z-index: 100;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid var(--card-border);
 }
 
 .logo-container {
   padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--card-border);
   margin-bottom: 16px;
 }
-
 .logo {
   color: white;
   font-size: 1.5rem;
@@ -75,7 +74,7 @@ body {
 }
 
 .logo i {
-  color: #4895ef;
+  color: var(--primary-light);
   font-size: 1.8rem;
   transition: transform 0.3s ease;
 }
@@ -133,7 +132,7 @@ body {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(to bottom, #4895ef, #3f37c9);
+  background: linear-gradient(to bottom, var(--primary-light), var(--primary-dark));
 }
 
 .nav-link i {
@@ -141,60 +140,38 @@ body {
   text-align: center;
   font-size: 1.1rem;
 }
-.logo i {
-  color: #4895ef;
-  font-size: 1.8rem;
-  transition: transform 0.3s ease;
-}
-.logo:hover i {
-  transform: rotate(15deg);
-}
-
-.main-content {
-  flex-grow: 1;
-  padding: 40px;
-  background-color: #f5f7ff;
-  margin-left: 280px;
-}
-
-/* Responsividade da barra lateral */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 80px;
-    padding: 16px 0;
-  }
-
-  .logo span,
-  .nav-link span {
-    display: none;
-  }
-
-  .logo i,
-  .nav-link i {
-    font-size: 1.4rem;
-  }
-
-  .nav-link {
-    justify-content: center;
-    padding: 16px 0;
-  }
-
-  .main-content {
-    margin-left: 80px;
-    padding: 24px;
-  }
-}
 
 /* Conteúdo Principal */
 .main-content {
-  flex-grow: 1;
-  padding: 40px;
-  background-color: #f5f7ff;
   margin-left: 280px;
+  flex-grow: 1;
+  padding: 30px;
+  width: calc(100% - 280px);
 }
 
 .page-header {
   margin-bottom: 32px;
+}
+
+/* Estilos do Conteúdo */
+h1 {
+  color: black;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 3px;
 }
 
 h2 {
@@ -253,7 +230,7 @@ hr {
   transform: translateY(0);
 }
 
-/* Lista de Pedidos Moderna */
+/* Lista de Pedidos */
 #listaPedidos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -265,11 +242,12 @@ hr {
   background: var(--card-bg);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--card-border);
   position: relative;
   overflow: hidden;
+  color: var(--text-light);
 }
 
 .pedido-card:hover {
@@ -293,19 +271,19 @@ hr {
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .pedido-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--dark);
+  color: var(--text-light);
 }
 
 .pedido-id {
   font-size: 0.85rem;
   background: rgba(67, 97, 238, 0.1);
-  color: var(--primary-dark);
+  color: var(--primary-light);
   padding: 4px 12px;
   border-radius: 20px;
   font-weight: 500;
@@ -314,13 +292,13 @@ hr {
 .bloco-info {
   margin-bottom: 16px;
   padding: 16px;
-  background: rgba(245, 247, 250, 0.5);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
 }
 
 .bloco-title {
   font-weight: 600;
-  color: var(--dark);
+  color: var(--text-light);
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -338,13 +316,13 @@ hr {
 
 .lamina-label {
   font-weight: 500;
-  color: #555;
+  color: var(--text-muted);
   min-width: 100px;
 }
 
 .lamina-value {
   font-weight: 500;
-  color: var(--dark);
+  color: var(--text-light);
 }
 
 /* Cores para as lâminas */
@@ -415,7 +393,7 @@ hr {
   gap: 8px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--card-border);
 }
 
 .action-btn {
@@ -438,7 +416,7 @@ hr {
 
 .action-btn .material-symbols-rounded {
   font-size: 1.1rem;
-  color: var(--primary);
+  color: var(--primary-light);
 }
 
 /* Mensagem vazia */
@@ -446,7 +424,7 @@ hr {
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px;
-  color: var(--gray);
+  color: var(--text-muted);
   font-size: 1.1rem;
 }
 
@@ -501,31 +479,38 @@ hr {
 }
 
 @media (max-width: 768px) {
+
+  /*MENU LATERAL */
   .sidebar {
-    width: 80px;
-    padding: 16px 0;
+      width: 80px;
+      padding: 16px 0;
   }
 
   .logo span,
   .nav-link span {
-    display: none;
+      display: none;
   }
 
-  .logo .material-symbols-rounded {
-    margin: 0 auto;
-    font-size: 1.8rem;
+  .logo i {
+      font-size: 1.4rem;
   }
 
   .nav-link {
-    justify-content: center;
-    padding: 16px 0;
+      justify-content: center;
+      padding: 16px 0;
   }
 
   .main-content {
-    margin-left: 80px;
-    padding: 24px;
+      margin-left: 80px;
+      padding: 20px;
   }
+  /*FIM MENU LATERAL*/
 
+  .monitoring-container,
+  .form-container {
+      min-width: auto;
+      max-width: 100%;
+  }
   #listaPedidos {
     grid-template-columns: 1fr;
   }
@@ -540,6 +525,7 @@ hr {
     width: 100%;
   }
 }
+
 .excluir-btn {
   background-color: #e74c3c;
   color: white;

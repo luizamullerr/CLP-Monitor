@@ -3,61 +3,58 @@
 
 <head>
     <title>Painel Industrial</title>
-    <style>
-        /* Você pode adicionar CSS aqui, se necessário */
-    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/stylehome.css}">
 </head>
 
 <body>
     <div class="app-container">
-        <!-- Barra Lateral Moderna -->
-        <aside class="sidebar">
-            <div class="logo-container">
-                <h1 class="logo">
-                    <i class="fas fa-industry"></i>
-                    <span>CLP Monitor</span>
-                </h1>
-            </div>
+    <!-- Barra Lateral -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <h1 class="logo">
+                <i class="fas fa-industry"></i>
+                <span>CLP Monitor</span>
+            </h1>
+        </div>
 
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="/" class="nav-link">
-                        <i class="fas fa-home"></i>
-                        <span>Página Inicial</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/monitor" class="nav-link active">
-                        <i class="fas fa-desktop"></i>
-                        <span>Monitoramento</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/loja-pedido" class="nav-link">
-                        <i class="fas fa-warehouse"></i>
-                        <span>Loja</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/listaPedido" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>Pedidos</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/block" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Configuração</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Página Inicial</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/monitor" class="nav-link">
+                    <i class="fas fa-desktop"></i>
+                    <span>Monitoramento</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/loja-pedido" class="nav-link">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Loja</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/listaPedido" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Pedidos</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/block" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuração</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
 
         <!-- Conteúdo Principal -->
         <main class="main-content">
-            
+
 
             <div class="dashboard-cards">
                 <div class="dashboard-card">
@@ -90,17 +87,17 @@
             </div>
 
             <header>
-                <h1>Bancada Smart 4.0</h1>
+                <h1 class="h1title">Bancada Smart 4.0</h1>
             </header>
             <div class="divBancadaStatus">
                 <label for="ipBase">IP Base:</label>
-                <input type="text" id="ipBase"/>
+                <input type="text" id="ipBase" />
                 <button id="btnConectar" onclick="conectarBancada()">Conectar</button>
             </div>
-            
+
             <div class="bancada-container">
                 <img id="bancada4" th:src="@{/assets/bancada/Bancada.png}" class="bancada-imagem">
-                
+
                 <!-- Inputs posicionados sobre cada etapa -->
                 <div class="ip-input-container">
                     <input type="text" id="hostIpEstoque" class="bancada-input estoque" readonly />
@@ -113,9 +110,13 @@
             <div class="connection-status" id="connectionStatus">
                 Aguardando solicitação de conexão
             </div>
-                
+
+            <div id="saidaHex" style="font-family: monospace; white-space: pre-wrap; margin-top:10px; color: #333; ">
             </div>
-        </main>
+
+
+    </div>
+    </main>
     </div>
 
     <!-- Script JavaScript ao final do body -->
@@ -123,6 +124,3 @@
 </body>
 
 </html>
-
-
-

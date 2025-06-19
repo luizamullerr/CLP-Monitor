@@ -15,7 +15,8 @@
 
 <body>
     <div class="app-container">
-        <aside class="sidebar">
+         <!-- Barra Lateral -->
+         <aside class="sidebar">
             <div class="logo-container">
                 <h1 class="logo">
                     <i class="fas fa-industry"></i>
@@ -120,6 +121,12 @@
             document.getElementById('clp3').textContent = data.value;
         });
 
+        eventSource.addEventListener('clp4-data', function (event) {
+            const data = JSON.parse(event.data);
+            const byteArray = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
+            renderPedidos(byteArray);
+            document.getElementById('clp4').textContent = '-';
+        });
         function renderPedidos(byteArray) {
             const grid = document.getElementById('expedicao-grid');
             grid.innerHTML = '';

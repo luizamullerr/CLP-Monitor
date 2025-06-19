@@ -43,7 +43,8 @@ body {
     min-height: 100vh;
 }
 
-/* BARRA LATERAL*/
+/*MENU LATERAL*/
+
 .sidebar {
     width: 280px;
     background: var(--sidebar-bg);
@@ -146,10 +147,9 @@ body {
 
 /* Conteúdo Principal */
 .main-content {
+    margin-left: 280px;
     flex-grow: 1;
     padding: 30px;
-    background-color: #f5f7fa;
-    margin-left: 280px;
     width: calc(100% - 280px);
 }
 
@@ -203,7 +203,7 @@ h2 {
 }
 
 label {
-    display:flex;
+    display: flex;
     align-items: center;
     margin-left: 20px;
     margin-bottom: 0.75rem;
@@ -242,13 +242,15 @@ select option[disabled][selected] {
 
 select option {
     color: white;
-    background: var(--card-bg);;
+    background: var(--card-bg);
+    ;
 }
 
 
 select option:checked {
     color: black !important;
-    background-color: var(--card-bg);;
+    background-color: var(--card-bg);
+    ;
 }
 
 
@@ -309,7 +311,25 @@ select:focus {
     width: auto;
     min-width: 350px;
     height: 640px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.05),
+        0 4px 8px rgba(0, 0, 0, 0.05),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        0 16px 32px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bloco-montado:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        0 16px 32px rgba(0, 0, 0, 0.15),
+        0 32px 64px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
 .bloco {
@@ -319,13 +339,24 @@ select:focus {
     border-radius: 8px;
     width: 300px;
     min-height: 600px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.05),
+        0 4px 8px rgba(0, 0, 0, 0.05),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        0 16px 32px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .bloco:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        0 16px 32px rgba(0, 0, 0, 0.15),
+        0 32px 64px rgba(0, 0, 0, 0.15);
 }
 
 .pedido-view {
@@ -536,6 +567,8 @@ hr {
 }
 
 @media (max-width: 768px) {
+
+    /*MENU LATERAL */
     .sidebar {
         width: 80px;
         padding: 16px 0;
@@ -557,10 +590,17 @@ hr {
     }
 
     .main-content {
-        padding: 15px;
         margin-left: 80px;
-        width: calc(100% - 80px);
+        padding: 20px;
     }
+    /*FIM MENU LATERAL*/
+
+    .monitoring-container,
+    .form-container {
+        min-width: auto;
+        max-width: 100%;
+    }
+
 
     .bloco {
         width: 100%;

@@ -43,7 +43,8 @@ body {
     min-height: 100vh;
 }
 
-/* Barra Lateral Moderna */
+/*MENU LATERAL*/
+
 .sidebar {
     width: 280px;
     background: var(--sidebar-bg);
@@ -137,6 +138,13 @@ body {
     width: 3px;
     background: linear-gradient(to bottom, var(--primary-light), var(--primary-dark));
 }
+
+.nav-link i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
 
 /* Conteúdo Principal */
 .main-content {
@@ -262,12 +270,12 @@ button[type="submit"]:active {
 
 /* Títulos */
 h1 {
-    color: var(--text-light);
-    font-size: 28px;
-    margin-bottom: 25px;
+    color: black;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
     font-weight: 600;
     position: relative;
-    padding-bottom: 10px;
+    padding-bottom: 0.5rem;
 }
 
 h1::after {
@@ -301,8 +309,11 @@ h2 {
 }
 
 @media (max-width: 768px) {
+
+    /*MENU LATERAL */
     .sidebar {
         width: 80px;
+        padding: 16px 0;
     }
 
     .logo span,
@@ -310,13 +321,25 @@ h2 {
         display: none;
     }
 
+    .logo i,
+    .nav-link i {
+        font-size: 1.4rem;
+    }
+
+    .nav-link {
+        justify-content: center;
+        padding: 16px 0;
+    }
+
     .main-content {
         margin-left: 80px;
         padding: 20px;
     }
+    /*FIM MENU LATERAL*/
 
-    .container1,
+    .monitoring-container,
     .form-container {
+        min-width: auto;
         max-width: 100%;
     }
 }
