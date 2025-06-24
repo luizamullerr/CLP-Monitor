@@ -30,18 +30,13 @@ function atualizarStatusConexao(status, mensagem) {
     }
 }
 
-// Função para capitalizar strings
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 // Função principal para conectar/desconectar a bancada
 function conectarBancada() {
     const btn = document.getElementById("btnConectar");
     const ipBase = document.getElementById("ipBase").value.trim();
 
     if (!ipBase) {
-        alert("Informe um IP base válido.");
+        console.error("Informe um IP base válido.");
         return;
     }
 
@@ -111,7 +106,7 @@ function conectarBancada() {
                 btn.textContent = "Desconectar";
                 conectado = true;
                 atualizarStatusConexao('connected', "Conectado");
-                
+                sessionStorage.setItem("bancadaConectada", "true");
             })
             .catch(error => {
                 console.error("Erro detalhado:", error);
@@ -150,12 +145,12 @@ function conectarBancada() {
         conectado = false;
         sessionStorage.removeItem("bancadaConectada");
     }
-
 }
 
 // Função para iniciar as leituras SSE
 function iniciarSSEClps() {
     console.log("Leituras iniciadas");
+    // Aqui você pode implementar a lógica SSE se necessário
     const dadosLidos = new Uint8Array([0x10, 0xFF, 0x00, 0xAB, 0x7E, 0x5D]);
     mostrarHexNaTela(dadosLidos);
 }
@@ -169,7 +164,9 @@ function pararSSEClps() {
     console.log("Conexões SSE paradas");
 }
 
-
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
 function exibirBytesHex(bytes) {
     if (!bytes || typeof bytes[0] === 'undefined') {
         console.error("Entrada inválida: esperado array de bytes");
@@ -191,23 +188,26 @@ function mostrarHexNaTela(bytes) {
         divHex.textContent = exibirBytesHex(bytes);
     }
 }
-
-
-// Inicialização quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    // Configura status inicial
-    atualizarStatusConexao('waiting', "Aguardando solicitação de conexão");
+    // Inicialização quando o DOM estiver carregado
+    document.addEventListener('DOMContentLoaded', function () {
+        // Configura status inicial
+        atualizarStatusConexao('waiting', "Aguardando solicitação de conexão");
     
-    // Restaura cores dos inputs se existirem no sessionStorage
-    document.querySelectorAll('.bancada-input').forEach(input => {
-        const cor = sessionStorage.getItem(`corFonte_${input.id}`);
-        if (cor) {
-            input.style.color = cor;
+        // Verifica se havia uma conexão ativa em sessionStorage
+        if (sessionStorage.getItem("bancadaConectada") === "false") {
+            document.getElementById("btnConectar").textContent = "Desconectar";
+            conectado = true;
+            atualizarStatusConexao('connected', "Conectado");
         }
-    });
     
-    // Teste inicial para verificar se o elemento saidaHex está funcionando
-    setTimeout(() => {
-        mostrarHexNaTela([0x48, 0x45, 0x4C, 0x4C, 0x4F]); // "HELLO" em hex
-    }, 500);
-});
+        // Restaura cores dos inputs se existirem no sessionStorage
+        document.querySelectorAll('.bancada-input').forEach(input => {
+            const cor = sessionStorage.getItem(`corFonte_${input.id}`);
+            if (cor) {
+                input.style.color = cor;
+            }
+        });
+    });
+
+
+

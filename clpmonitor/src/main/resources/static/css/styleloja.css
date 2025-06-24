@@ -176,24 +176,24 @@ body {
 
 /* Estilos do Conteúdo */
 h1 {
-    color: black;
+    color: var(--dark);
     font-size: 2rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
     position: relative;
-    padding-bottom: 0.5rem;
-}
-
-h1::after {
+    padding-bottom: 12px;
+    display: inline-block;
+  }
+  
+  h1::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     width: 60px;
-    height: 3px;
+    height: 4px;
     background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border-radius: 3px;
-}
+    border-radius: 2px;
+  }
 
 h2 {
     color: var(--text-light);
@@ -204,12 +204,13 @@ h2 {
 
 label {
     display: flex;
-    align-items: center;
+    align-items: left;
     margin-left: 20px;
     margin-bottom: 0.75rem;
     font-weight: 500;
     color: black;
     font-size: 0.95rem;
+    
 }
 
 .label {
@@ -259,9 +260,27 @@ select:valid {
     color: rgb(255, 255, 255);
 }
 
+
+.typePedido {
+    display: flex;          
+    align-items: center;   
+    gap: 10px;             
+    margin-top: 20px;
+    margin-bottom: 20px;   
+}
+
+.typePedido label {
+    margin-top: 20px;            
+    white-space: nowrap;   
+    color: black;         
+    font-size: 0.95rem;    
+}
+
 .typen {
+    margin-left: 0;      
+    width: auto;           
+    min-width: 200px;      
     padding: 12px 16px;
-    margin-left: 20px;
     border: 1px solid var(--card-border);
     border-radius: 8px;
     border-color: rgb(92, 92, 92);
@@ -271,7 +290,6 @@ select:valid {
     color: rgb(8, 8, 8);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
-
 
 select {
     padding: 12px 16px;

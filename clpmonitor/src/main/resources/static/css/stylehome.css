@@ -234,16 +234,6 @@ body {
     margin-bottom: 30px;
 }
 
-
-.h1title {
-    color: #2c3e50;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
-}
-
-/* Estilos do Conteúdo */
 h1 {
     color: black;
     font-size: 2rem;
@@ -251,9 +241,9 @@ h1 {
     font-weight: 600;
     position: relative;
     padding-bottom: 0.5rem;
-}
-
-h1::after {
+  }
+  
+  h1::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -261,7 +251,48 @@ h1::after {
     width: 60px;
     height: 3px;
     background: linear-gradient(90deg, var(--primary), var(--secondary));
+
+    box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 16px 32px rgba(0, 0, 0, 0.15),
+    0 32px 64px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+  }
+
+  .h1title {
+    align-items: center;
+    justify-content: center;
+    color: #2c3e50;
+    position: relative;
+    display: flex; /* Mantém o alinhamento centralizado */
+    margin-top: 50px;
+    /* Removi align-items e justify-content (não afetam inline-block) */
+}
+
+.h1title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%; /* Começa no centro */
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     border-radius: 3px;
+    transform: translateX(-50%); /* Centraliza a linha */
+    animation: expandLine 1s ease-out forwards;
+}
+
+@keyframes expandLine {
+    from {
+        width: 0;
+    }
+    to {
+        width: 80%; /* Ou um valor fixo como 500px */
+    }
 }
 
 .user-profile {
@@ -476,42 +507,65 @@ a {
     color: white;
 }
 
-/* Estilo para o container do IP Base */
+/* Estilo para a divBancadaStatus */
 .divBancadaStatus {
-    margin: 20px 0;
-    margin-top: 0;
-    align-items: center;
+    margin: 20px auto; 
+    padding: 15px;
+    background: rgba(35, 35, 59, 0.95);
+    border-radius: 8px;
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
     display: flex;
-    justify-content: center;
-    gap: 10px;
+    flex-direction: relative; 
+    align-items: center; 
+    gap: 12px;
+    transition: transform 0.3s ease;
+    width: 500px;
+}
+
+.divBancadaStatus:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
 .divBancadaStatus label {
     font-weight: bold;
-    color: #2c3e50;
+    color: #f3f9ff;
+    font-size: 0.9rem; 
+    width: 100%;
+    text-align: center;
 }
 
 .divBancadaStatus #ipBase {
     padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 150px;
-    font-size: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 0.85rem;
+    width: 200px; 
+    transition: border-color 0.3s;
+    box-sizing: border-box; 
 }
 
 .divBancadaStatus #btnConectar {
     padding: 8px 16px;
-    background-color: #4361ee;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.divBancadaStatus #btnConectar:hover {
-    background-color: #3a56d4;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    width: 100%; 
+    text-align: center;
+    justify-content: center;
 }
 
 /*Conexão do home*/
@@ -553,14 +607,21 @@ a {
 
 #saidaHex {
     font-family: monospace;
-    white-space: pre-wrap;
-    margin: 20px;
+    margin: 20px auto; /* auto nas laterais para centralizar */
     padding: 15px;
-    background-color: #f8f9fa;
+    background-color: #81b3e4;
     border: 1px solid #dee2e6;
-    border-radius: 4px;
-    color: #212529;
     min-height: 50px;
-    overflow: auto;
-    max-width: 100%;
+    overflow: auto; 
+    width: auto; 
+   
+    border-radius: 15px;
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    display: block; /* trocado de flex para block */
+    text-align: center; /* alinhamento do texto interno */
+    justify-content: center;
+    
 }
