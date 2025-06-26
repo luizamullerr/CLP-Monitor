@@ -1,11 +1,12 @@
 
 package com.example.clpmonitor.repository;
-import com.example.clpmonitor.model.Expedicao;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.example.clpmonitor.model.Expedicao;
 
 @Repository
 public interface ExpedicaoRepository extends JpaRepository<Expedicao, Long> {

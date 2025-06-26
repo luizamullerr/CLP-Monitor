@@ -24,7 +24,7 @@ import com.example.clpmonitor.repository.ExpedicaoRepository;
 import com.example.clpmonitor.service.ClpSimulatorService.PlcConnectionManager;
 
 @Service
-public class SmartService {
+public class SmartService{
 
 
     // Variáveis globais do programa

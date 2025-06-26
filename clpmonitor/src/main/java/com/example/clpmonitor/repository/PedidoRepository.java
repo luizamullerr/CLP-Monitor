@@ -7,5 +7,7 @@ import com.example.clpmonitor.model.Pedido;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
+
+    int findMaxOrderProduction();
 }
 

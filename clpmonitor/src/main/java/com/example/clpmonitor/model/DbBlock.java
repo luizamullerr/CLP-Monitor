@@ -1,11 +1,18 @@
 package com.example.clpmonitor.model;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "db_block")
 public class DbBlock {
+
+    
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +29,9 @@ public class DbBlock {
 
     @Column(name = "productionOrder", nullable = true)
     private Short productionOrder;
+
+   
+
 
     public Long getId()
     {
@@ -43,7 +53,7 @@ public class DbBlock {
         this.position = position;
     }
 
-    public Short getColor()
+    public Integer getColor()
     {
         return color;
     }
@@ -72,5 +82,14 @@ public class DbBlock {
     {
         this.productionOrder = productionOrder;
     }
-
+    
+    public DbBlock() {
+        // Construtor vazio exigido pelo JPA
+    }
+    public DbBlock(short position, short color, short storageId, Short productionOrder) {
+        this.position = position;
+        this.color = color;
+        this.storageId = storageId;
+        this.productionOrder = productionOrder;
+    }
 }

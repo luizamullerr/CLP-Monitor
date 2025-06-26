@@ -21,13 +21,103 @@
     --offline: #f87171;
 }
 
-/* Reset e Estilos Base */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
+
+.editable-cell {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.color-editor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.color-input {
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 2px solid #333;
+    color: black !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    margin: 0;
+}
+
+.color-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.editable-cell.active .color-input {
+    opacity: 1;
+    z-index: 10;
+    color: black;
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+.cor-0 {
+    background-color: white;
+}
+
+.cor-1 {
+    background-color: black;
+}
+
+.cor-2 {
+    background-color: red;
+}
+
+.cor-3 {
+    background-color: blue;
+}
+
+.color-value {
+    pointer-events: none;
+    z-index: 1;
+}
+
+.editable-cell.active .color-value {
+    display: none;
+}
+
+.editable-cell .color-input {
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.2s;
+}
+
+.editable-cell.active .color-input {
+    opacity: 1;
+    z-index: 10;
+}
+
+
 
 body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
@@ -37,13 +127,10 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Layout Principal */
 .app-container {
     display: flex;
     min-height: 100vh;
 }
-
-/*MENU LATERAL*/
 
 .sidebar {
     width: 280px;
@@ -145,8 +232,6 @@ body {
     font-size: 1.1rem;
 }
 
-
-/* Conteúdo Principal */
 .main-content {
     margin-left: 280px;
     flex-grow: 1;
@@ -160,19 +245,33 @@ body {
     margin: 0 auto;
 }
 
-/* Container do Formulário */
+/* NOVO CONTAINER FLEX PARA LADO A LADO */
+.dual-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    align-items: flex-start;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+/* Ambos os containers lado a lado */
 .container1,
-.form-container {
+.container2 {
     background: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--card-border);
-    max-width: 800px;
-    margin: 0 auto;
+    flex: 1;
+    min-width: 420px;
 }
 
-/* Estilos do Formulário */
+/* Se quiser que um dos lados seja maior:
+.container1 { flex: 2; }
+.container2 { flex: 1; }
+*/
+
 .form-block {
     display: flex;
     flex-direction: column;
@@ -227,21 +326,7 @@ body {
     color: var(--text-muted);
 }
 
-button[type="submit"] {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
-    width: 100%;
-}
-
+button[type="submit"],
 button[type="button"] {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
@@ -266,11 +351,8 @@ button[type="submit"]:active {
     transform: translateY(0);
 }
 
-
-
-/* Títulos */
 h1 {
-    color: black;
+    color: rgb(250, 250, 250);
     font-size: 2rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
@@ -296,6 +378,82 @@ h2 {
     font-weight: 500;
 }
 
+.estoque-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    margin: 25px 0;
+    padding: 10px;
+}
+
+.cell {
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60px;
+}
+
+.cell:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.selected {
+    border: 2px solid #555;
+    font-weight: bold;
+    box-shadow: 0 0 0 3px rgba(85, 85, 85, 0.2);
+}
+
+.cor-0 {
+    background-color: white;
+    color: black;
+}
+
+.cor-1 {
+    background-color: black;
+    color: white;
+}
+
+.cor-2 {
+    background-color: red;
+    color: white;
+}
+
+.cor-3 {
+    background-color: blue;
+    color: white;
+}
+
+.expedicao-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 colunas fixas */
+    gap: 12px;
+}
+
+.expedicao-grid .cell {
+    border: 1px solid #d9d9d9;
+    padding: 5px;
+    text-align: center;
+    border-radius: 6px;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.expedicao-grid .cell:hover {
+    transform: scale(1.03);
+}
+
 /* Responsividade */
 @media (max-width: 1024px) {
     .main-content {
@@ -309,8 +467,6 @@ h2 {
 }
 
 @media (max-width: 768px) {
-
-    /*MENU LATERAL */
     .sidebar {
         width: 80px;
         padding: 16px 0;
@@ -335,12 +491,15 @@ h2 {
         margin-left: 80px;
         padding: 20px;
     }
-    /*FIM MENU LATERAL*/
 
     .monitoring-container,
     .form-container {
         min-width: auto;
         max-width: 100%;
+    }
+
+    .dual-container {
+        flex-direction: column;
     }
 }
 

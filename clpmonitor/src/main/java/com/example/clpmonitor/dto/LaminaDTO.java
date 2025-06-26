@@ -2,7 +2,7 @@ package com.example.clpmonitor.dto;
 
 public class LaminaDTO {
     private String cor;
-    private String padrao;
+    private int padrao;
 
     // Getters e Setters
     
@@ -12,10 +12,10 @@ public class LaminaDTO {
     public void setCor(String cor) {
         this.cor = cor;
     }
-    public String getPadrao() {
+    public int getPadrao() {
         return padrao;
     }
-    public void setPadrao(String padrao) {
+    public void setPadrao(int padrao) {
         this.padrao = padrao;
     }
 

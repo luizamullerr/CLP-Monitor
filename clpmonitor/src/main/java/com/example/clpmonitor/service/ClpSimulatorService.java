@@ -38,6 +38,7 @@ public class ClpSimulatorService {
         // Você pode agendar tarefas aqui se quiser
         sendClp1Update();
         sendClp4Update();
+        //sendClp2to4Updates();
     }
 
     public void atualizarEstoque() {
@@ -108,6 +109,15 @@ public class ClpSimulatorService {
         ClpData clp4 = new ClpData(4, byteArray);
         sendToEmitters("clp4-data", clp4);
     }
+
+    // sendClp2to4Updates() – Gera valores inteiros simples
+    // Simula os valores para os CLPs 2, 3 e 4 com números aleatórios de 0 a 99.
+    /*  public void sendClp2to4Updates() {
+        Random rand = new Random();
+
+        sendToEmitters("clp2-data", new ClpData(2, rand.nextInt(100)));
+        sendToEmitters("clp3-data", new ClpData(3, rand.nextInt(100)));
+    }*/
 
     private void sendToEmitters(String eventName, ClpData clpData) {
         for (SseEmitter emitter : emitters) {

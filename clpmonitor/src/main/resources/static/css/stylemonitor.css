@@ -53,7 +53,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    display: flex;
+    /*display: flex;*/
     flex-direction: column;
     z-index: 100;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
@@ -64,7 +64,10 @@ body {
     padding: 24px;
     border-bottom: 1px solid var(--card-border);
     margin-bottom: 16px;
-}
+    justify-content: flex-start;
+    
+    }
+
 
 .logo {
     color: white;
@@ -272,6 +275,15 @@ button {
     gap: 8px;
     margin-top: 10px;
 }
+.button2 {
+    min-width: 260px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    cursor: pointer;
+}
 
 button:hover {
     transform: translateY(-2px);
@@ -370,8 +382,8 @@ select option:checked {
 
     /*MENU LATERAL */
     .sidebar {
-        width: 80px;
-        padding: 16px 0;
+        /*width: 80px;*/
+        /*padding: 16px 0;*/
     }
 
     .logo span,
