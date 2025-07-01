@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public class PedidoDTO {
-
     private String tipo;
     private String ipClp;
     private String statusOrderProduction;
@@ -12,14 +11,13 @@ public class PedidoDTO {
     private List<BlocoDTO> blocos;
 
     // Getters e Setters
+    
     public String getTipo() {
         return tipo;
     }
-
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
-
     public String getIpClp() {
         return ipClp;
     }
@@ -43,12 +41,13 @@ public class PedidoDTO {
     public void setTimeStamp(Timestamp timeStamp) {
         this.timeStamp = timeStamp;
     }
-
     public List<BlocoDTO> getBlocos() {
         return blocos;
     }
-
     public void setBlocos(List<BlocoDTO> blocos) {
         this.blocos = blocos;
     }
+
+
+    
 }

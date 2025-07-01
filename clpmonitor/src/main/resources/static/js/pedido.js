@@ -185,43 +185,60 @@ function renderBlocos() {
 
     verBlocosMontados();
 }
+const coresMap = {
+    1: "preto",
+    2: "vermelho",
+    3: "azul",
+    4: "amarelo",
+    5: "Branco",
+    6: "verde"
+   
+  };
+// Função auxiliar para renderizar os blocos do pedido
 // Função auxiliar para renderizar os blocos do pedido
 function renderBlocosPedido(blocos) {
-    if (!blocos || blocos.length === 0) return '<p>Nenhum bloco neste pedido</p>';
-
-    return blocos.map((bloco, index) => `
-        <div class="bloco-info">
-            <h4 class="bloco-title">
-                <span class="material-symbols-rounded">category</span>
-                Bloco ${index + 1} - ${bloco.cor || 'Sem cor definida'}
-            </h4>
-            
-            ${renderLaminas(bloco.laminas)}
+    return blocos.map((bloco, idx) => {
+      const nomeCor = coresMap[bloco.cor] || "desconhecido";
+  
+      const laminasTexto = bloco.laminas.map((lamina, i) => {
+        const nomeCorLamina = coresMap[lamina.cor] || "desconhecido";
+        return `Lâmina ${i + 1}: Cor ${nomeCorLamina}, Padrão ${lamina.padrao || "-"}`;
+      }).join("<br>");
+  
+      return `
+        <div class="bloco-pedido" id="bloco-pedido-${idx}">
+          <p>Cor do bloco: <strong>${nomeCor}</strong></p>
+          <p>${laminasTexto}</p>
         </div>
-    `).join('');
+      `;
+    }).join("");
 }
 
 // Função auxiliar para renderizar as lâminas
 function renderLaminas(laminas) {
     if (!laminas || laminas.length === 0) return '<p>Nenhuma lâmina neste bloco</p>';
-
+  
+    laminas.forEach((lamina, index) => {
+      console.log(`Lâmina ${index + 1}: cor =`, lamina.cor, typeof lamina.cor);
+    });
+  
     return laminas.map((lamina, index) => {
-        const corClass = `lamina-color-${lamina.cor}`;
-        const padraoText = getPadraoText(lamina.padrao);
-
-        return `
-            <div class="lamina-info">
-                <span class="lamina-label ${corClass}">
-                    <span class="material-symbols-rounded">layers</span>
-                    Lâmina ${index + 1}:
-                </span>
-                <span class="lamina-value">
-                    ${getCorText(lamina.cor)} ${padraoText}
-                </span>
-            </div>
-        `;
+      const corClass = `lamina-color-${lamina.cor}`;
+      const padraoText = getPadraoText(lamina.padrao);
+  
+      return `
+        <div class="lamina-info">
+          <span class="lamina-label ${corClass}">
+            <span class="material-symbols-rounded">layers</span>
+            Lâmina ${index + 1}:
+          </span>
+          <span class="lamina-value">
+            ${getCorText(lamina.cor)} ${padraoText}
+          </span>
+        </div>
+      `;
     }).join('');
-}
+  }
 
 function getStatusClass(status) {
     switch (status?.toLowerCase()) {
@@ -232,16 +249,21 @@ function getStatusClass(status) {
 }
 
 function getCorText(cor) {
-    const cores = {
-        '1': 'Vermelho',
-        '2': 'Azul',
-        '3': 'Amarelo',
-        '4': 'Verde',
-        '5': 'Preto',
-        '6': 'Branco'
+    if (cor == null || cor === "") return "desconhecido";
+  
+    const coresMap = {
+      "1": "preto",
+      "2": "vermelho",
+      "3": "azul",
+      "4": "amarelo",
+      "5": "branco",
+      "6": "verde",
+      
     };
-    return cores[cor] || 'Cor não especificada';
-}
+  
+    const corKey = String(cor).trim().toLowerCase();
+    return coresMap[corKey] || "desconhecido";
+  }
 
 function getPadraoText(padrao) {
     if (!padrao) return '';
@@ -504,6 +526,20 @@ function spin(id) {
     changePedidoView(id);
 }
 
+function corParaInt(corStr) {
+    if (!corStr) return 0;  // Cor inválida vira zero (sem cor)
+    
+    switch (corStr.toLowerCase()) {
+      case "preto": return 1;
+      case "vermelho": return 2;
+      case "azul": return 3;
+      case "branco": return 5;
+      default:
+        const num = parseInt(corStr, 10);
+        return isNaN(num) ? 0 : num;
+    }
+  }
+
 // Envia pedido para a base de dados
 function enviarPedido() {
     const tipo = document.getElementById("tipoPedido").value;
@@ -545,20 +581,23 @@ function enviarPedido() {
             // Só adiciona se a cor da lâmina estiver definida
             if (cor) {
                 laminas.push({
-                    cor: cor,
+                    cor: cor || "0",
                     padrao: padrao || null
                 });
             }
         }
+        
 
-        // Só adiciona blocos válidos
         if (corBloco) {
             pedido.blocos.push({
-                cor: corBloco,
-                laminas: laminas
+              cor: corParaInt(corBloco),         // <-- converte aqui
+              laminas: laminas.map(l => ({        // <-- converte cada lâmina
+                cor: corParaInt(l.cor),
+                padrao: l.padrao || null
+              }))
             });
-        }
-    });
+          }
+        });
 
     // Verifica se pelo menos um bloco foi adicionado
     if (pedido.blocos.length === 0) {
@@ -571,6 +610,7 @@ function enviarPedido() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([pedido])
+        
     })
         .then(res => {
             if (res.ok) {

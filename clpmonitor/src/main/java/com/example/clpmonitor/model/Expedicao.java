@@ -19,17 +19,18 @@ public class Expedicao {
     private Integer posicao;
 
     @Column(name = "numero_op")
-    private Integer numeroOp; // Número da Ordem de Produção
+    private Integer numeroOp;
 
     @Column(name = "status")
-    private Integer status; // 0-LIVRE, 1-OCUPADO
+    private Integer status;
 
     @Column(name = "ultima_atualizacao")
     private String ultimaAtualizacao;
 
-    // Construtores
-    public Expedicao() {
-    }
+    @Column(name = "storage_id")
+    private Short storageId;
+
+    public Expedicao() {}
 
     public Expedicao(Integer posicao, Integer numeroOp, Integer status) {
         this.posicao = posicao;
@@ -37,15 +38,7 @@ public class Expedicao {
         this.status = status;
     }
 
-    // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Getters e setters para posicao
     public Integer getPosicao() {
         return posicao;
     }
@@ -54,6 +47,7 @@ public class Expedicao {
         this.posicao = posicao;
     }
 
+    // Getters e setters para numeroOp
     public Integer getNumeroOp() {
         return numeroOp;
     }
@@ -62,6 +56,7 @@ public class Expedicao {
         this.numeroOp = numeroOp;
     }
 
+    // Getters e setters para status
     public Integer getStatus() {
         return status;
     }
@@ -70,11 +65,30 @@ public class Expedicao {
         this.status = status;
     }
 
+    // Getters e setters para ultimaAtualizacao
     public String getUltimaAtualizacao() {
         return ultimaAtualizacao;
     }
 
     public void setUltimaAtualizacao(String ultimaAtualizacao) {
         this.ultimaAtualizacao = ultimaAtualizacao;
+    }
+
+    // Getters e setters para storageId
+    public Short getStorageId() {
+        return storageId;
+    }
+
+    public void setStorageId(Short storageId) {
+        this.storageId = storageId;
+    }
+
+    // Opcional: getter/setter para usar "productionOrder" no template
+    public Integer getProductionOrder() {
+        return this.numeroOp;
+    }
+
+    public void setProductionOrder(Integer productionOrder) {
+        this.numeroOp = productionOrder;
     }
 }

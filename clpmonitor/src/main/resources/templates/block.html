@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <title>Atualização de CLPs</title>
     <meta charset="UTF-8" />
@@ -8,198 +7,133 @@
     <link rel="stylesheet" th:href="@{/css/stylegestor.css}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    
 </head>
 
 <body>
-    <div class="app-container">
-        <!-- Barra Lateral -->
-        <aside class="sidebar">
-            <div class="logo-container">
-                <h1 class="logo">
-                    <i class="fas fa-industry"></i>
-                    <span>CLP Monitor</span>
-                </h1>
-            </div>
+<div class="app-container">
+    <!-- Barra Lateral -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <h1 class="logo">
+                <i class="fas fa-industry"></i>
+                <span>CLP Monitor</span>
+            </h1>
+        </div>
 
-            <ul class="nav-menu">
-                <li class="nav-item"><a href="/" class="nav-link"><i class="fas fa-home"></i> <span>Página
-                            Inicial</span></a></li>
-                <li class="nav-item"><a href="/monitor" class="nav-link"><i class="fas fa-desktop"></i>
-                        <span>Monitoramento</span></a></li>
-                <li class="nav-item"><a href="/loja-pedido" class="nav-link"><i class="fas fa-warehouse"></i>
-                        <span>Loja</span></a></li>
-                <li class="nav-item"><a href="/listaPedido" class="nav-link"><i class="fas fa-clipboard-list"></i>
-                        <span>Pedidos</span></a></li>
-                <li class="nav-item"><a href="/block" class="nav-link active"><i class="fas fa-cog"></i>
-                        <span>Configuração</span></a></li>
-            </ul>
-        </aside>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/" class="nav-link"><i class="fas fa-home"></i> <span>Página Inicial</span></a></li>
+            <li class="nav-item"><a href="/monitor" class="nav-link"><i class="fas fa-desktop"></i> <span>Monitoramento</span></a></li>
+            <li class="nav-item"><a href="/loja-pedido" class="nav-link"><i class="fas fa-warehouse"></i> <span>Loja</span></a></li>
+            <li class="nav-item"><a href="/listaPedido" class="nav-link"><i class="fas fa-clipboard-list"></i> <span>Pedidos</span></a></li>
+            <li class="nav-item"><a href="/block" class="nav-link active"><i class="fas fa-cog"></i> <span>Gestor</span></a></li>
+        </ul>
+    </aside>
 
-        <!-- Conteúdo Principal -->
-        <main class="main-content">
-            <div class="content-wrapper">
-                <!-- Containers lado a lado -->
-                <div class="dual-container">
-                    <!-- Container 1 -->
-                    <div class="container1">
-                        <h1>Cadastro de Blocos</h1>
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Containers lado a lado -->
+            <div class="dual-container">
+                <!-- Container 1 -->
+                <div class="container1">
+                    <h1>Cadastro de Blocos</h1>
 
-                        <form th:action="@{/block}" th:object="${block}" method="post" class="form-block">
-                            <div class="form-row">
-                                <label>Selecione uma posição:</label>
-                                <div class="estoque-grid" id="estoqueGrid">
-                                    <!-- Exemplo com 6 células - ajuste conforme necessário -->
-                                    <div th:each="bloco : ${blocos}" class="cell editable-cell"
-                                        th:data-position="${bloco.position}" th:attr="data-color=${bloco.color}"
-                                        th:classappend="'cor-' + ${bloco.color}">
-                                        <div class="color-editor">
-                                            <span class="color-value" th:text="${bloco.color}"></span>
-                                            <input type="number" class="color-input" min="0" max="3" 
-                                                   th:value="${bloco.color}" />
-                                        </div>
+                    <form th:action="@{/block}" method="post" class="form-block">
+                        <div class="form-row">
+                            <label>Selecione uma posição:</label>
+                            <div class="estoque-grid" id="estoqueGrid">
+                                <div th:each="bloco, iterStat : ${blocos}" 
+                                     class="cell editable-cell"
+                                     th:data-position="${bloco.position}" 
+                                     th:attr="data-color=${bloco.color}"
+                                     th:classappend="'cor-' + ${bloco.color}">
+                                    <div class="color-editor">
+                                        <span class="color-value" th:text="${bloco.color}"></span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Campos ocultos -->
-                            <input type="hidden" id="position" th:field="*{position}" required />
-                            <input type="hidden" id="color" th:field="*{color}" required />
-                            <input type="hidden" id="storageId" th:field="*{storageId}" required />
+                        <div class="form-row">
+                            <label for="productionOrder">Ordem de Produção (opcional):</label>
+                            <input type="number" id="productionOrder" name="productionOrder" placeholder="Deixe vazio se não tiver" />
+                        </div>
 
-                            <div class="form-row">
-                                <label for="productionOrder">Ordem de Produção (opcional):</label>
-                                <input type="number" id="productionOrder" th:field="*{productionOrder}"
-                                    placeholder="Deixe vazio se não tiver" />
-                            </div>
+                        <!-- Inputs hidden gerados por JS -->
+                        <input type="hidden" id="position" name="position" />
+                        <input type="hidden" id="color" name="color" />
+                        <input type="hidden" id="storageId" name="storageId" value="1" />
 
-                            <button type="submit" id="btnSalvarEstoque">Salvar Estoque</button>
-                        </form>
-                    </div>
-
-                    <!-- Container 2 -->
-                    <div class="container2">
-                        <h2>Expedição (3x4)</h2>
-                        <form th:action="@{/block/expedicao}" method="post">
-                            <div class="expedicao-grid">
-                                <div th:each="bloco : ${blocosExpedicao}" class="cell">
-                                    <label th:text="'P' + ${bloco.position} + ':'"></label><br />
-                                    <input type="number" th:name="'productionOrders[' + ${bloco.position} + ']'"
-                                        th:value="${bloco.productionOrder}" min="0" placeholder="OP" />
-                                    <input type="hidden" th:name="'positions[' + ${bloco.position} + ']'"
-                                        th:value="${bloco.position}" />
-                                </div>
-                            </div>
-                            <button type="submit" id="btnSalvarExpedicao">Salvar Expedição</button>
-                        </form>
-                    </div>
+                        <button type="submit" id="btnSalvarEstoque">Salvar Estoque</button>
+                    </form>
                 </div>
-            </div>
-        </main>
-    </div>
 
-    <script>
-       document.addEventListener("DOMContentLoaded", () => {
+                <!-- Container 2 -->
+                <div class="container2">
+                    <h2>Expedição (3x4)</h2>
+
+                    <form th:action="@{/block/expedicao}" method="post">
+                        <div class="expedicao-grid">
+                            <div th:each="bloco : ${blocosExpedicao}" class="cell">
+                                <label th:text="'P' + ${bloco.posicao} + ':'"></label><br />
+                                <input type="number" th:name="'productionOrders[' + ${bloco.posicao} + ']'"
+                                       th:value="${bloco.numeroOp}" min="0" placeholder="OP" />
+                                <input type="hidden" th:name="'positions[' + ${bloco.posicao} + ']'"
+                                       th:value="${bloco.posicao}" />
+                            </div>
+                        </div>
+                        <button type="submit" id="btnSalvarExpedicao">Salvar Expedição</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector('.form-block');
     const inputPosicao = document.getElementById("position");
     const inputCor = document.getElementById("color");
     const inputStorageId = document.getElementById("storageId");
 
-    // Objeto para armazenar todas as alterações temporariamente
     const alteracoes = {};
 
     document.querySelectorAll('.editable-cell').forEach(cell => {
-        const colorInput = cell.querySelector('.color-input');
         const colorValue = cell.querySelector('.color-value');
         const position = cell.dataset.position;
-        
-        // Configuração inicial
-        const initialValue = colorInput.value || '0';
-        cell.classList.add(`cor-${initialValue}`);
-        colorInput.value = initialValue;
-        colorValue.textContent = initialValue;
-        
-        // Armazena o valor inicial
+
+        let valorAtual = parseInt(cell.dataset.color) || 0;
+        cell.classList.add(`cor-${valorAtual}`);
+        colorValue.textContent = valorAtual;
+
         alteracoes[position] = {
             position: position,
-            color: initialValue,
+            color: valorAtual,
             storageId: 1
         };
-        
-        // Clique na célula
-        cell.addEventListener('click', function(e) {
-            // Remove active de todas as células
-            document.querySelectorAll('.editable-cell').forEach(c => {
-                c.classList.remove('active');
-            });
-            
-            // Ativa esta célula
-            cell.classList.add('active');
-            
-            // Foca no input
-            setTimeout(() => {
-                colorInput.focus();
-                colorInput.select();
-            }, 10);
-            
-            // Atualiza campos ocultos (para compatibilidade)
-            inputPosicao.value = position;
-            inputCor.value = colorInput.value;
-            inputStorageId.value = 1;
-        });
-        
-        // Ao digitar
-        colorInput.addEventListener('input', function(e) {
-            let value = e.target.value;
-            
-            // Validação (0-3 apenas)
-            value = value.replace(/[^0-3]/g, '');
-            if (value.length > 1) value = value.slice(0, 1);
-            if (value === '') value = '0';
-            
-            e.target.value = value;
-            colorValue.textContent = value;
-            
-            // Atualiza visual da célula
+
+        cell.addEventListener('click', function () {
+            // Próxima cor
+            valorAtual = (valorAtual + 1) % 4;
+
+            // Atualiza visual
             cell.classList.remove('cor-0', 'cor-1', 'cor-2', 'cor-3');
-            cell.classList.add(`cor-${value}`);
-            
-            // Atualiza dados temporários
+            cell.classList.add(`cor-${valorAtual}`);
+            colorValue.textContent = valorAtual;
+
+            // Atualiza dados
             alteracoes[position] = {
                 position: position,
-                color: value,
+                color: valorAtual,
                 storageId: 1
             };
-            
-            // Atualiza campos ocultos (para compatibilidade)
-            inputCor.value = value;
-        });
-        
-        // Ao pressionar Enter
-        colorInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.blur();
-            }
-        });
-        
-        // Ao perder foco
-        colorInput.addEventListener('blur', function() {
-            setTimeout(() => {
-                cell.classList.remove('active');
-                
-                if (this.value === '') {
-                    this.value = '0';
-                    colorValue.textContent = '0';
-                    cell.classList.add('cor-0');
-                    alteracoes[position] = {
-                        position: position,
-                        color: '0',
-                        storageId: 1
-                    };
-                    inputCor.value = '0';
-                }
-            }, 200);
+
+            // Atualiza campos ocultos
+            inputPosicao.value = position;
+            inputCor.value = valorAtual;
+            inputStorageId.value = 1;
         });
     });
 
@@ -208,11 +142,10 @@
         input.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
     });
 
-    // Modificação no submit do formulário para enviar todas as alterações
+    // Submissão do formulário com dados dos blocos
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Cria um input hidden para cada alteração
+
         Object.values(alteracoes).forEach(alteracao => {
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
@@ -220,13 +153,10 @@
             hiddenInput.value = JSON.stringify(alteracao);
             form.appendChild(hiddenInput);
         });
-        
-        // Submete o formulário
+
         this.submit();
     });
 });
-    </script>
-
+</script>
 </body>
-
 </html>

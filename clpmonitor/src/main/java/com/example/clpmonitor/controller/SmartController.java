@@ -23,14 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.clpmonitor.dto.BlocoDTO;
 import com.example.clpmonitor.dto.LaminaDTO;
 import com.example.clpmonitor.dto.PedidoDTO;
-import com.example.clpmonitor.model.DbBlock;
 import com.example.clpmonitor.model.Estoque;
 import com.example.clpmonitor.model.Expedicao;
 import com.example.clpmonitor.repository.EstoqueRepository;
 import com.example.clpmonitor.repository.ExpedicaoRepository;
 import com.example.clpmonitor.repository.PedidoRepository;
-import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.SmartService;
+
 
 @RestController
 public class SmartController {
@@ -48,9 +47,6 @@ public class SmartController {
     private SmartService smartService;
 
     @Autowired
-    private DbBlockService dbBlockService; // Certifique-se que está injetado
-
-    @Autowired
     private EstoqueRepository estoqueRepository;
 
     @Autowired
@@ -63,10 +59,12 @@ public class SmartController {
     public ResponseEntity<String> iniciarPedido(@RequestBody PedidoDTO pedidoDTO) {
         String ipClp = pedidoDTO.getIpClp();
         List<BlocoDTO> pedido = pedidoDTO.getBlocos();
+        
+    
 
         System.out.println("Pedido recebido para IP do CLP: " + ipClp);
         for (BlocoDTO bloco : pedido) {
-            System.out.println("Andar: " + bloco.getAndar() + ", Cor do Bloco: " + bloco.getCorBloco());
+            System.out.println("Andar: " + bloco.getAndar() + ", Cor do Bloco: " + bloco.getCor());
             int i = 1;
             for (LaminaDTO lamina : bloco.getLaminas()) {
                 System.out.println("  Lâmina-" + i + ": Cor = " + lamina.getCor() + ", Padrão = " + lamina.getPadrao());
@@ -95,8 +93,9 @@ public class SmartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao enviar pedido ao CLP: " + e.getMessage());
         }
+        
     }
-
+    
     @PostMapping("/estoque/salvar")
     public ResponseEntity<String> salvarEstoque(@RequestBody Map<String, Integer> dados) {
         try {
@@ -109,17 +108,15 @@ public class SmartController {
                     if (pos >= 1 && pos <= 28) {
                         byteBlocosArray[pos - 1] = valor.byteValue();
 
-                        // Adaptação para usar DbBlockService
-                        DbBlock bloco = dbBlockService.buscarPorPosicaoEstoque(pos)
+                        Estoque estoque = estoqueRepository.findByPosicaoEstoque(pos)
                                 .orElseGet(() -> {
-                                    DbBlock novo = new DbBlock();
-                                    novo.setPosition((short) pos);
-                                    novo.setStorageId((short) 1); // Assumindo que 1 é o ID do estoque
+                                    Estoque novo = new Estoque();
+                                    novo.setPosicaoEstoque(pos);
                                     return novo;
                                 });
 
-                        bloco.setColor(valor);
-                        dbBlockService.cadastrarBloco(bloco);
+                        estoque.setCor(valor);
+                        estoqueRepository.save(estoque);
                     }
                 } catch (Exception e) {
                     System.err.println("Erro ao processar posição: " + posStr + " - " + e.getMessage());
@@ -135,90 +132,87 @@ public class SmartController {
     }
 
     @PostMapping("/clp/enviar-estoque")
-public ResponseEntity<String> enviarParaClp(@RequestBody Map<String, String> payload) {
-    try {
-        String ipClpEstoque = payload.get("ipClp");
+    public ResponseEntity<String> enviarParaClp(@RequestBody Map<String, String> payload) {
+        try {
+            String ipClpEstoque = payload.get("ipClp");
 
-        if (ipClpEstoque == null || ipClpEstoque.isEmpty()) {
-            return ResponseEntity.badRequest().body("Endereço IP do CLP de Estoque não fornecido.");
-        }
-
-        // Buscar todos os blocos do estoque (storageId = 1, assumindo que 1 é estoque)
-        List<DbBlock> blocosEstoque = dbBlockService.listarBlocosPorStorageId((short)1);
-        byte[] byteBlocosArray = new byte[28];
-
-        for (DbBlock bloco : blocosEstoque) {
-            int pos = bloco.getPosition(); // posição de 1 a 28
-            Integer cor = bloco.getColor(); // Usar Integer para tratar null
-            
-            if (pos >= 1 && pos <= 28 && cor != null) {
-                // Garante que o valor está dentro do range do byte
-                int valorCor = Math.min(Math.max(cor, 0), 255); // Limita entre 0-255
-                byteBlocosArray[pos - 1] = (byte) valorCor;
+            if (ipClpEstoque == null || ipClpEstoque.isEmpty()) {
+                return ResponseEntity.badRequest().body("Endereço IP do CLP de Estoque não fornecido.");
             }
-        }
 
-        // Depuração
-        System.out.print("Bytes enviados ao CLP Estoque: ");
-        for (byte b : byteBlocosArray) {
-            System.out.printf("%02X ", b);
-        }
-        System.out.println();
+            // Buscar todos os registros do estoque
+            List<Estoque> listaEstoque = estoqueRepository.findAll();
+            byte[] byteBlocosArray = new byte[28];
 
-        // Enviar ao CLP (adaptar para seu PlcConnector)
-        smartService.enviarBlocoBytesAoClp(ipClpEstoque, 9, 68, byteBlocosArray, byteBlocosArray.length);
-
-        return ResponseEntity.ok("Bloco de bytes enviado com sucesso para o CLP de Estoque.");
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao enviar dados ao CLP: " + e.getMessage());
-    }
-}
-
-@PostMapping("/clp/enviar-expedicao")
-public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, String> payload) {
-    try {
-        String ipClpExpedicao = payload.get("ipClp");
-
-        if (ipClpExpedicao == null || ipClpExpedicao.isEmpty()) {
-            return ResponseEntity.badRequest().body("Endereço IP do CLP de Expedição não fornecido.");
-        }
-
-        // Buscar todos os blocos de expedição (assumindo storageId = 2 para expedição)
-        List<DbBlock> blocosExpedicao = dbBlockService.listarBlocosPorStorageId((short) 2);
-        byte[] byteBlocosArray = new byte[24]; // 12 posições * 2 bytes cada
-
-        for (DbBlock bloco : blocosExpedicao) {
-            int pos = bloco.getPosition(); // posição de 1 a 12
-            Integer orderNumber = bloco.getOrderNumber(); // número do pedido
-
-            if (pos >= 1 && pos <= 12 && orderNumber != null) {
-                int index = (pos - 1) * 2;
-                // Garantir que o valor está dentro do range de 2 bytes (0-65535)
-                int valor = Math.min(Math.max(orderNumber, 0), 65535);
-                byteBlocosArray[index] = (byte) (valor >>> 8);   // High byte (unsigned shift)
-                byteBlocosArray[index + 1] = (byte) (valor & 0xFF); // Low byte
+            for (Estoque e : listaEstoque) {
+                int pos = e.getPosicaoEstoque(); // posição de 1 a 28
+                if (pos >= 1 && pos <= 28) {
+                    byteBlocosArray[pos - 1] = (byte) e.getCor().byteValue();
+                }
             }
+
+            // Apenas para depuração
+            System.out.print("Bytes enviados ao CLP Estoque: ");
+            for (byte b : byteBlocosArray) {
+                System.out.printf("%02X ", b);
+            }
+            System.out.println();
+
+            // Enviar os dados ao CLP de Estoque
+            smartService.enviarBlocoBytesAoClp(ipClpEstoque, 9, 68, byteBlocosArray, byteBlocosArray.length);
+
+            return ResponseEntity.ok("Bloco de bytes enviado com sucesso para o CLP de Estoque.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao enviar dados ao CLP: " + e.getMessage());
         }
-
-        // Depuração
-        System.out.print("Bytes enviados ao CLP Expedição: ");
-        for (byte b : byteBlocosArray) {
-            System.out.printf("%02X ", b);
-        }
-        System.out.println();
-
-        // Enviar ao CLP (adaptar para seu PlcConnector/smartService)
-        smartService.enviarBlocoBytesAoClp(ipClpExpedicao, 9, 6, byteBlocosArray, byteBlocosArray.length);
-
-        return ResponseEntity.ok("Bloco de inteiros enviado com sucesso para o CLP de Expedição.");
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao enviar dados ao CLP de Expedição: " + e.getMessage());
     }
-}
+
+    @PostMapping("/clp/enviar-expedicao")
+    public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, String> payload) {
+        try {
+            String ipClpExpedicao = payload.get("ipClp");
+
+            if (ipClpExpedicao == null || ipClpExpedicao.isEmpty()) {
+                return ResponseEntity.badRequest().body("Endereço IP do CLP de Expedição não fornecido.");
+            }
+
+            // Buscar todos os registros da expedição
+            List<Expedicao> listaExpedicao = expedicaoRepository.findAll();
+
+            // Cada posição da expedição usa 2 bytes (short)
+            byte[] byteBlocosArray = new byte[24];
+
+            for (Expedicao e : listaExpedicao) {
+                int pos = e.getPosicao(); // posição de 1 a 12
+                int valor = e.getNumeroOp();    // valor do pedido
+
+                if (pos >= 1 && pos <= 12) {
+                    int index = (pos - 1) * 2;
+                    byteBlocosArray[index] = (byte) (valor >> 8);       // High byte
+                    byteBlocosArray[index + 1] = (byte) (valor & 0xFF);     // Low byte
+                }
+            }
+
+            // Apenas para depuração
+            System.out.print("Bytes enviados ao CLP Expedição: ");
+            for (byte b : byteBlocosArray) {
+                System.out.printf("%02X ", b);
+            }
+            System.out.println();
+
+            // Enviar os dados ao CLP de Expedição
+            smartService.enviarBlocoBytesAoClp(ipClpExpedicao, 9, 6, byteBlocosArray, byteBlocosArray.length);
+
+            return ResponseEntity.ok("Bloco de inteiros enviado com sucesso para o CLP de Expedição.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao enviar dados ao CLP de Expedição: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/update-Estoque")
     public ResponseEntity<String> updateEstoque(@RequestBody Map<String, Object> payload) {
         try {
@@ -269,24 +263,25 @@ public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, St
     @PostMapping("/expedicao/salvar")
     public ResponseEntity<String> salvarExpedicao(@RequestBody Map<String, Integer> dados) {
         System.out.println("Atualizando tabela Expedição!!");
-    
+
         try {
             dados.forEach((posStr, valor) -> {
                 try {
                     int pos = Integer.parseInt(posStr.split(":")[1]); // ex: "OP:3" → 3
-    
+
                     if (pos >= 1 && pos <= 12) {
                         if (valor == 0) {
                             // Remove do banco se valor == 0
                             expedicaoRepository.findByPosicao(pos).ifPresent(expedicaoRepository::delete);
                             System.out.println("Removida posição " + pos + " da tabela Expedição.");
                         } else {
-                            // Atualiza ou insere normalmente - versão corrigida
-                            Expedicao exp = expedicaoRepository.findByPosicao(pos)
-                                    .orElse(new Expedicao()); // Usando new diretamente
-    
-                            exp.setPosicaoExpedicao(pos);
-                            exp.setOrderNumber(valor);
+                            // Atualiza ou insere normalmente
+                            Expedicao exp = expedicaoRepository
+                                    .findByPosicao(pos)
+                                    .orElseGet(Expedicao::new);
+
+                            exp.setPosicao(pos);
+                            exp.setNumeroOp(valor);
                             expedicaoRepository.save(exp);
                             System.out.println("Atualizada posição " + pos + " com valor " + valor);
                         }
@@ -295,7 +290,7 @@ public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, St
                     System.err.println("Erro ao processar posição: " + posStr + " - " + e.getMessage());
                 }
             });
-    
+
             return ResponseEntity.ok("Tabela Expedição atualizada com sucesso.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -303,6 +298,7 @@ public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, St
                     .body("Erro ao atualizar tabela Expedição: " + e.getMessage());
         }
     }
+
     @PostMapping("/update-Expedicao")
     public ResponseEntity<String> updateExpedicaoClp(@RequestBody Map<String, Object> request) {
         try {
@@ -316,7 +312,7 @@ public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, St
                     int pos = Integer.parseInt(posStr.split(":")[1]); // exemplo: "OP:3" → 3
                     if (pos >= 1 && pos <= 12) {
                         int index = (pos - 1) * 2;
-                        byteBlocosArray[index] = (byte) (valor >> 8); // high byte
+                        byteBlocosArray[index] = (byte) (valor >> 8);       // high byte
                         byteBlocosArray[index + 1] = (byte) (valor & 0xFF); // low byte
                     }
                 } catch (Exception e) {
@@ -366,7 +362,7 @@ public ResponseEntity<String> enviarParaClpExpedicao(@RequestBody Map<String, St
                 continue;
             }
 
-            int corBloco = bloco.getCorBloco();
+            int corBloco = bloco.getCor();
 
             // Buscar posição disponível para essa cor, que ainda não foi usada
             int posicaoEstoque = smartService.buscarPrimeiraPosicaoPorCor(corBloco, posicoesUsadas);

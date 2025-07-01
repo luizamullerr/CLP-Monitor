@@ -20,4 +20,3 @@ public class ClpConfigDTO {
         this.delay = delay;
     }
 }
-

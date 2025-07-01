@@ -21,7 +21,7 @@ public class Bloco {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int cor;
+    private String cor;
 
     @ManyToOne
     @JoinColumn(name = "pedido_id")
@@ -42,11 +42,11 @@ public class Bloco {
         this.id = id;
     }
 
-    public int getCor() {
+    public String getCor() {
         return cor;
     }
 
-    public void setCor(int cor) {
+    public void setCor(String cor) {
         this.cor = cor;
     }
 
@@ -65,7 +65,6 @@ public class Bloco {
     public void setLaminas(List<Lamina> laminas) {
         this.laminas = laminas;
     }
-
 
     
 }

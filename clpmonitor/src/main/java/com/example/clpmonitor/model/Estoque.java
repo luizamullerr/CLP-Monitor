@@ -65,5 +65,4 @@ public class Estoque {
     public void setUltimaAtualizacao(String ultimaAtualizacao) {
         this.ultimaAtualizacao = ultimaAtualizacao;
     }
-
 }

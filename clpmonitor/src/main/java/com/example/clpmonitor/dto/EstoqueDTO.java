@@ -1,5 +1,7 @@
 package com.example.clpmonitor.dto;
 
+
+
 public class EstoqueDTO {
     private int id;
     private int posicaoEstoque;

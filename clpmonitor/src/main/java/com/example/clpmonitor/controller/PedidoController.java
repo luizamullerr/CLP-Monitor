@@ -44,13 +44,13 @@ public class PedidoController {
 
             List<Bloco> blocos = pedidoDTO.getBlocos().stream().map(blocoDTO -> {
                 Bloco bloco = new Bloco();
-                bloco.setCor(blocoDTO.getCorBloco());
+                bloco.setCor(String.valueOf(blocoDTO.getCor()));
                 bloco.setPedido(pedido);
 
                 List<Lamina> laminas = blocoDTO.getLaminas().stream().map(laminaDTO -> {
                     Lamina lamina = new Lamina();
-                    lamina.setCor(laminaDTO.getCor());
-                    lamina.setPadrao(laminaDTO.getPadrao());
+                    lamina.setCor(String.valueOf(laminaDTO.getCor())); // converter int para String aqui
+                    lamina.setPadrao(String.valueOf(laminaDTO.getPadrao()));
                     lamina.setBloco(bloco);
                     return lamina;
                 }).collect(Collectors.toList());

@@ -17,7 +17,7 @@ public class Lamina {
     private Long id;
     
     private String cor;
-    private int padrao;
+    private String padrao;
     
     @ManyToOne
     @JoinColumn(name = "bloco_id")
@@ -42,11 +42,11 @@ public class Lamina {
         this.cor = cor;
     }
 
-    public int getPadrao() {
+    public String getPadrao() {
         return padrao;
     }
 
-    public void setPadrao(int padrao) {
+    public void setPadrao(String padrao) {
         this.padrao = padrao;
     }
 
@@ -57,7 +57,6 @@ public class Lamina {
     public void setBloco(Bloco bloco) {
         this.bloco = bloco;
     }
-
 
     
 }

@@ -53,7 +53,7 @@ public class DbBlock {
         this.position = position;
     }
 
-    public Integer getColor()
+    public Short getColor()
     {
         return color;
     }

@@ -167,7 +167,6 @@ function pararSSEClps() {
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
 function exibirBytesHex(bytes) {
     if (!bytes || typeof bytes[0] === 'undefined') {
         console.error("Entrada inválida: esperado array de bytes");
@@ -189,4 +188,26 @@ function mostrarHexNaTela(bytes) {
         divHex.textContent = exibirBytesHex(bytes);
     }
 }
+    // Inicialização quando o DOM estiver carregado
+    document.addEventListener('DOMContentLoaded', function () {
+        // Configura status inicial
+        atualizarStatusConexao('waiting', "Aguardando solicitação de conexão");
+    
+        // Verifica se havia uma conexão ativa em sessionStorage
+        if (sessionStorage.getItem("bancadaConectada") === "false") {
+            document.getElementById("btnConectar").textContent = "Desconectar";
+            conectado = true;
+            atualizarStatusConexao('connected', "Conectado");
+        }
+    
+        // Restaura cores dos inputs se existirem no sessionStorage
+        document.querySelectorAll('.bancada-input').forEach(input => {
+            const cor = sessionStorage.getItem(`corFonte_${input.id}`);
+            if (cor) {
+                input.style.color = cor;
+            }
+        });
+    });
+
+
 

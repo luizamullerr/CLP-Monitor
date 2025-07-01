@@ -1,6 +1,7 @@
 
 package com.example.clpmonitor.repository;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,7 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
     List<Estoque> findByCorOrderByPosicaoEstoqueAsc(Integer cor);
 
     // Busca posição específica
-    Estoque findByPosicaoEstoque(Integer posicao);
+    Optional<Estoque> findByPosicaoEstoque(Integer posicaoEstoque);
 
     // Verifica se posição está ocupada
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Estoque e WHERE e.posicaoEstoque = :posicao AND e.cor != 0")
@@ -25,5 +26,4 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
     // Busca todas as posições livres (cor = 0)
     @Query("SELECT e.posicaoEstoque FROM Estoque e WHERE e.cor = 0 ORDER BY e.posicaoEstoque ASC")
     List<Integer> findPosicoesLivres();
-
 }

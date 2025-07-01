@@ -3,31 +3,44 @@ package com.example.clpmonitor.dto;
 import java.util.List;
 
 public class BlocoDTO {
-    private int andar;  // Adicione este campo que está sendo usado no controller
-    private int corBloco; // Mude de String para int para compatibilidade
+    private int andar;
+    private int posicaoEstoque;
+    private int cor;
     private List<LaminaDTO> laminas;
     
-    // Adicione getters/setters para o andar
+    // Getters e Setters
+    
     public int getAndar() {
         return andar;
     }
+
     public void setAndar(int andar) {
         this.andar = andar;
     }
-    
-    // Mude para int
-    public int getCorBloco() {
-        return corBloco;
+
+    public int getPosicaoEstoque() {
+        return posicaoEstoque;
     }
-    public void setCorBloco(int corBloco) {
-        this.corBloco = corBloco;
+
+    public void setPosicaoEstoque(int posicaoEstoque) {
+        this.posicaoEstoque = posicaoEstoque;
     }
+    public int getCor() {
+        return cor;
+    }
+
+    public void setCor(int cor) {
+        this.cor = cor;
+    }
+   
     public List<LaminaDTO> getLaminas() {
         return laminas;
     }
     public void setLaminas(List<LaminaDTO> laminas) {
         this.laminas = laminas;
     }
+
+    
 
 
     
