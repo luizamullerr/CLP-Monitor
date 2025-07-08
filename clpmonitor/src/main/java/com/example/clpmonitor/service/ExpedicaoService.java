@@ -1,5 +1,6 @@
 package com.example.clpmonitor.service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,7 +21,57 @@ public class ExpedicaoService {
     }
 
     public void salvar(Expedicao exp) {
+        Integer posicao = exp.getPosicao();
+        System.out.println("💾 Tentando salvar: posição = " + posicao + ", OP = " + exp.getNumeroOp());
+
+        if (posicao == null || posicao < 1 || posicao > 12) {
+            throw new IllegalArgumentException("A posição deve estar entre 1 e 12.");
+        }
+
+        if (exp.getStorageId() == null) {
+            throw new IllegalArgumentException("StorageId não pode ser nulo");
+        }
+
         expedicaoRepository.save(exp);
+        System.out.println("💾 Salvou no banco: " + exp);
+    }
+
+    public void atualizarExpedicao(List<Expedicao> expedicaoList) {
+        System.out.println("♻️ Atualizando todas as posições da expedição...");
+
+        // Limpa todas as posições no banco
+        expedicaoRepository.deleteAll();
+
+        // Cria uma lista completa com as 12 posições
+        List<Expedicao> listaCompleta = new ArrayList<>();
+
+        for (short i = 1; i <= 12; i++) {
+            final short posicao = i;
+
+            // Busca na lista recebida se existe posição i
+            Expedicao expedicao = expedicaoList.stream()
+                .filter(e -> e.getPosicao() != null && e.getPosicao() == posicao)
+                .findFirst()
+                .orElse(null);
+
+            if (expedicao == null) {
+                expedicao = new Expedicao();
+                expedicao.setNumeroOp(0); // valor default
+            } else if (expedicao.getNumeroOp() == null) {
+                expedicao.setNumeroOp(0); // ou valor padrão para indicar vazio
+            }
+
+            expedicao.setPosicao((int) posicao);
+
+            if (expedicao.getStorageId() == null) {
+                expedicao.setStorageId((short) 1); // ou outro valor padrão, ou levanta erro se obrigatório
+            }
+
+            listaCompleta.add(expedicao);
+        }
+
+        expedicaoRepository.saveAll(listaCompleta);
+        System.out.println("✅ Atualização concluída com sucesso.");
     }
 
     public List<Expedicao> listarPorStorageId(short storageId) {
@@ -40,4 +91,3 @@ public class ExpedicaoService {
         return blocos;
     }
 }
-

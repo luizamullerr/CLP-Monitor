@@ -8,9 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.clpmonitor.model.DbBlock;
-import com.example.clpmonitor.model.Estoque;
 import com.example.clpmonitor.repository.DbBlockRepository;
-import com.example.clpmonitor.repository.EstoqueRepository;
+
 
 @Service
 public class DbBlockService {
@@ -21,19 +20,19 @@ public class DbBlockService {
 
     @Autowired
     private DbBlockRepository blockRepository;
-    @Autowired
-    private EstoqueRepository estoqueRepository;
+    
+    
 
     // Inicializa as 28 posições se não existirem
     
 
     public DbBlock cadastrarBloco(DbBlock newBlock) {
-        Optional<DbBlock> existingBlockOpt = blockRepository.findByPosition(newBlock.getPosition());
+        Optional<DbBlock> existingBlockOpt = blockRepository.findByPosicaoEstoque(newBlock.getPosicaoEstoque());
         DbBlock savedBlock;
     
         if (existingBlockOpt.isPresent()) {
             DbBlock existingBlock = existingBlockOpt.get();
-            existingBlock.setColor(newBlock.getColor());
+            existingBlock.setCor(newBlock.getCor());
             existingBlock.setStorageId(newBlock.getStorageId());
             existingBlock.setProductionOrder(newBlock.getProductionOrder());
             savedBlock = blockRepository.save(existingBlock);
@@ -41,21 +40,23 @@ public class DbBlockService {
             savedBlock = blockRepository.save(newBlock);
         }
     
-        // 👉 Atualiza ou cria entrada no estoque
-        Integer posicaoEstoque = (int) savedBlock.getPosition(); // converte short → int
-        Integer cor = (int) savedBlock.getColor(); // converte short → int
+        // Atualiza ou cria entrada no estoque
+        int posicaoEstoque = savedBlock.getPosicaoEstoque(); // já é short, só promove para int
+        int cor = savedBlock.getCor(); // idem
         String ultimaAtualizacao = java.time.LocalDateTime.now().toString();
     
-        Estoque estoque = estoqueRepository.findByPosicaoEstoque(posicaoEstoque)
-            .orElse(new Estoque(posicaoEstoque, cor)); // construtor cobre posição e cor
+        DbBlock dbBlock = blockRepository.findByPosicaoEstoque(posicaoEstoque)
+            .orElse(new DbBlock(DEFAULT_TYPE, DEFAULT_COLOR, DEFAULT_TYPE, cor)); // construtor cobre posição e cor
     
-        estoque.setCor(cor);
-        estoque.setUltimaAtualizacao(ultimaAtualizacao);
-    
-        estoqueRepository.save(estoque);
+            dbBlock.setCor(cor);
+            dbBlock.setUltimaAtualizacao(ultimaAtualizacao);
+        
+        blockRepository.save(dbBlock);
     
         return savedBlock;
     }
+    
+    
     
     public List<DbBlock> listarBlocos() {
         return blockRepository.findAll();
@@ -75,8 +76,8 @@ public class DbBlockService {
         List<DbBlock> blocos = new ArrayList<>();
     
         for (int i = 1; i <= TOTAL_POSITIONS; i++) {
-            DbBlock block = blockRepository.findByPosition((short) i)
-                    .orElse(new DbBlock((short) i, DEFAULT_COLOR, DEFAULT_TYPE, null));
+            DbBlock block = blockRepository.findByPosicaoEstoque(Integer.valueOf(i))
+                .orElse(new DbBlock(i, DEFAULT_COLOR, DEFAULT_TYPE, null));
             blocos.add(block);
         }
     

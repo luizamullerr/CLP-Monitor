@@ -1,6 +1,6 @@
 // Variáveis de estado globais
 let conectado = false;
-let pausado = 0;
+let pausado = false;
 
 // Função para atualizar o status visual da conexão
 function atualizarStatusConexao(status, mensagem) {
@@ -30,7 +30,120 @@ function atualizarStatusConexao(status, mensagem) {
     }
 }
 
-// Função principal para conectar/desconectar a bancada
+// Função para salvar o estado atual no localStorage
+function salvarEstado() {
+    const estado = {
+        conectado: conectado,
+        pausado: pausado,
+        ipBase: document.getElementById("ipBase").value,
+        status: document.getElementById("connectionStatus").textContent,
+        ips: {
+            estoque: document.getElementById("hostIpEstoque").value,
+            processo: document.getElementById("hostIpProcesso").value,
+            montagem: document.getElementById("hostIpMontagem").value,
+            expedicao: document.getElementById("hostIpExpedicao").value
+        },
+        cores: {
+            estoque: document.getElementById("hostIpEstoque").style.color,
+            processo: document.getElementById("hostIpProcesso").style.color,
+            montagem: document.getElementById("hostIpMontagem").style.color,
+            expedicao: document.getElementById("hostIpExpedicao").style.color
+        }
+    };
+    localStorage.setItem("estadoBancada", JSON.stringify(estado));
+}
+
+// Função para carregar o estado do localStorage
+function carregarEstado() {
+    const estadoSalvo = localStorage.getItem("estadoBancada");
+    if (estadoSalvo) {
+        return JSON.parse(estadoSalvo);
+    }
+    return null;
+}
+
+// Variáveis globais de controle
+
+
+// Função para atualizar status visual (exemplo)
+function atualizarStatusConexao(status, mensagem) {
+    const statusEl = document.getElementById("statusConexao");
+    if (!statusEl) return;
+    statusEl.textContent = mensagem;
+    statusEl.className = "status-" + status; // para usar CSS diferente se quiser
+}
+
+// Função para salvar estado da bancada no localStorage
+function salvarEstado() {
+    const estado = {
+        conectado,
+        pausado,
+        ipBase: document.getElementById("ipBase").value.trim(),
+        ips: {
+            estoque: document.getElementById("hostIpEstoque").value,
+            processo: document.getElementById("hostIpProcesso").value,
+            montagem: document.getElementById("hostIpMontagem").value,
+            expedicao: document.getElementById("hostIpExpedicao").value
+        },
+        cores: {
+            estoque: document.getElementById("hostIpEstoque").style.color,
+            processo: document.getElementById("hostIpProcesso").style.color,
+            montagem: document.getElementById("hostIpMontagem").style.color,
+            expedicao: document.getElementById("hostIpExpedicao").style.color
+        }
+    };
+    localStorage.setItem("estadoBancada", JSON.stringify(estado));
+    // Marca também que está conectado, para facilitar check
+    localStorage.setItem("bancadaConectada", conectado ? "true" : "false");
+}
+
+// Função para carregar estado salvo
+function carregarEstado() {
+    const json = localStorage.getItem("estadoBancada");
+    if (!json) return null;
+    try {
+        return JSON.parse(json);
+    } catch {
+        return null;
+    }
+}
+
+// Função para atualizar a interface (inputs, botão, status) com o estado carregado
+function restaurarEstado() {
+    const estado = carregarEstado();
+    if (!estado) return;
+
+    conectado = estado.conectado || false;
+    pausado = estado.pausado || false;
+
+    document.getElementById("ipBase").value = estado.ipBase || "";
+
+    document.getElementById("hostIpEstoque").value = estado.ips?.estoque || "";
+    document.getElementById("hostIpProcesso").value = estado.ips?.processo || "";
+    document.getElementById("hostIpMontagem").value = estado.ips?.montagem || "";
+    document.getElementById("hostIpExpedicao").value = estado.ips?.expedicao || "";
+
+    document.getElementById("hostIpEstoque").style.color = estado.cores?.estoque || "";
+    document.getElementById("hostIpProcesso").style.color = estado.cores?.processo || "";
+    document.getElementById("hostIpMontagem").style.color = estado.cores?.montagem || "";
+    document.getElementById("hostIpExpedicao").style.color = estado.cores?.expedicao || "";
+
+    const btn = document.getElementById("btnConectar");
+
+    if (conectado && !pausado) {
+        btn.textContent = "Desconectar";
+        atualizarStatusConexao('connected', "Conectado");
+        iniciarSSEClps();
+    } else if (conectado && pausado) {
+        btn.textContent = "Desconectar";
+        atualizarStatusConexao('paused', "Em pausa");
+    } else {
+        btn.textContent = "Conectar";
+        atualizarStatusConexao('waiting', "Aguardando conexão");
+    }
+}
+
+// Função para conectar/desconectar bancadas (sua função principal)
 function conectarBancada() {
     const btn = document.getElementById("btnConectar");
     const ipBase = document.getElementById("ipBase").value.trim();
@@ -66,9 +179,7 @@ function conectarBancada() {
             body: JSON.stringify(ips)
         })
             .then(res => {
-                if (!res.ok) {
-                    throw new Error(`Erro HTTP ${res.status}`);
-                }
+                if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
                 return res.json();
             })
             .then(status => {
@@ -78,16 +189,10 @@ function conectarBancada() {
                     const inputId = `hostIp${capitalize(nome)}`;
                     const input = document.getElementById(inputId);
                     input.style.color = ok ? "rgb(0,255,0)" : "rgb(255,0,0)";
-                    sessionStorage.setItem(`corFonte_${inputId}`, input.style.color);
-
-                    if (!ok) {
-                        falha = true;
-                    }
+                    if (!ok) falha = true;
                 });
 
-                if (falha) {
-                    throw new Error("Falha ao conectar com uma ou mais bancadas.");
-                }
+                if (falha) throw new Error("Falha ao conectar com uma ou mais bancadas.");
 
                 return fetch("http://localhost:8081/start-leituras", {
                     method: "POST",
@@ -97,16 +202,12 @@ function conectarBancada() {
             })
             .then(() => {
                 iniciarSSEClps();
-                pausado = 0;
-
-                if (pausado === 0) {
-                    const inputs = document.querySelectorAll('.divBancadaStatus input');
-                }
-
-                btn.textContent = "Desconectar";
+                pausado = false;
                 conectado = true;
+                btn.textContent = "Desconectar";
+
+                salvarEstado();
                 atualizarStatusConexao('connected', "Conectado");
-                sessionStorage.setItem("bancadaConectada", "true");
             })
             .catch(error => {
                 console.error("Erro detalhado:", error);
@@ -118,41 +219,48 @@ function conectarBancada() {
 
                 btn.textContent = "Conectar";
                 conectado = false;
-                sessionStorage.removeItem("bancadaConectada");
+                pausado = false;
+                localStorage.removeItem("estadoBancada");
             })
             .finally(() => {
                 btn.disabled = false;
             });
 
     } else {
-        // Código para desconexão
-        pararSSEClps();
-        pausado = 1;
-        atualizarStatusConexao('paused', "Em pausa");
+        // Desconectar ou pausar
+        if (pausado) {
+            // Desconecta completamente
+            pararSSEClps();
+            btn.textContent = "Conectar";
+            conectado = false;
+            pausado = false;
+            atualizarStatusConexao('waiting', "Aguardando conexão");
+            localStorage.removeItem("estadoBancada");
+        } else {
+            // Pausa
+            pararSSEClps();
+            pausado = true;
+            btn.textContent = "Desconectar";
+            atualizarStatusConexao('paused', "Em pausa");
+            salvarEstado();
+        }
 
         document.querySelectorAll('.bancada-input').forEach(input => {
-            input.style.color = "rgb(255,255,0)";
+            input.style.color = pausado ? "rgb(255,255,0)" : "rgb(255,0,0)";
         });
 
         fetch("http://localhost:8081/stop-leituras", {
             method: "POST"
-        })
-            .catch(error => {
-                console.error("Erro ao parar leituras:", error);
-            });
-
-        btn.textContent = "Conectar";
-        conectado = false;
-        sessionStorage.removeItem("bancadaConectada");
+        }).catch(error => {
+            console.error("Erro ao parar leituras:", error);
+        });
     }
 }
 
 // Função para iniciar as leituras SSE
 function iniciarSSEClps() {
     console.log("Leituras iniciadas");
-    // Aqui você pode implementar a lógica SSE se necessário
-    const dadosLidos = new Uint8Array([0x10, 0xFF, 0x00, 0xAB, 0x7E, 0x5D]);
-    mostrarHexNaTela(dadosLidos);
+    // Sua lógica real para iniciar SSE aqui
 }
 
 // Função para parar as leituras SSE
@@ -164,16 +272,23 @@ function pararSSEClps() {
     console.log("Conexões SSE paradas");
 }
 
+// Funções auxiliares
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// Chamar a restauração do estado ao carregar a página
+document.addEventListener('DOMContentLoaded', () => {
+    restaurarEstado();
+});
+
+
 function exibirBytesHex(bytes) {
     if (!bytes || typeof bytes[0] === 'undefined') {
         console.error("Entrada inválida: esperado array de bytes");
         return "";
     }
 
-    // Aceita Uint8Array ou array normal
     return Array.from(bytes)
         .map(byte => {
             const val = (typeof byte === 'number') ? byte : byte.charCodeAt(0);
@@ -188,26 +303,157 @@ function mostrarHexNaTela(bytes) {
         divHex.textContent = exibirBytesHex(bytes);
     }
 }
-    // Inicialização quando o DOM estiver carregado
-    document.addEventListener('DOMContentLoaded', function () {
-        // Configura status inicial
-        atualizarStatusConexao('waiting', "Aguardando solicitação de conexão");
+
+// Inicialização quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', function () {
+    // Verifica se é o primeiro acesso (não há estado salvo)
+    const primeiroAcesso = !localStorage.getItem("estadoBancada");
     
-        // Verifica se havia uma conexão ativa em sessionStorage
-        if (sessionStorage.getItem("bancadaConectada") === "false") {
-            document.getElementById("btnConectar").textContent = "Desconectar";
-            conectado = true;
+    if (primeiroAcesso) {
+        // Estado inicial para primeiro acesso
+        atualizarStatusConexao('waiting', "Aguardando conexão");
+        document.getElementById("btnConectar").textContent = "Conectar";
+        conectado = false;
+        pausado = false;
+        return;
+    }
+
+    // Carrega o estado salvo
+    const estado = carregarEstado();
+    if (estado) {
+        // Restaura os valores dos IPs
+        document.getElementById("ipBase").value = estado.ipBase || "";
+        document.getElementById("hostIpEstoque").value = estado.ips.estoque || "";
+        document.getElementById("hostIpProcesso").value = estado.ips.processo || "";
+        document.getElementById("hostIpMontagem").value = estado.ips.montagem || "";
+        document.getElementById("hostIpExpedicao").value = estado.ips.expedicao || "";
+
+        // Restaura as cores
+        document.getElementById("hostIpEstoque").style.color = estado.cores.estoque || "";
+        document.getElementById("hostIpProcesso").style.color = estado.cores.processo || "";
+        document.getElementById("hostIpMontagem").style.color = estado.cores.montagem || "";
+        document.getElementById("hostIpExpedicao").style.color = estado.cores.expedicao || "";
+
+        // Restaura o estado da conexão
+        conectado = estado.conectado;
+        pausado = estado.pausado;
+        
+        const btn = document.getElementById("btnConectar");
+        if (conectado && !pausado) {
+            btn.textContent = "Desconectar";
             atualizarStatusConexao('connected', "Conectado");
+            iniciarSSEClps();
+        } else if (conectado && pausado) {
+            btn.textContent = "Desconectar";
+            atualizarStatusConexao('paused', "Em pausa");
+        } else {
+            btn.textContent = "Conectar";
+            atualizarStatusConexao('waiting', "Aguardando conexão");
+        }
+    } else {
+        // Estado padrão se não houver estado salvo
+        atualizarStatusConexao('waiting', "Aguardando conexão");
+        document.getElementById("btnConectar").textContent = "Conectar";
+    }
+});
+window.onload = () => {
+    const bancadaConectada = localStorage.getItem("bancadaConectada");
+    if (bancadaConectada === "true") {
+        const ipsJson = localStorage.getItem("ips");
+        if (ipsJson) {
+            const ips = JSON.parse(ipsJson);
+            // Atualize inputs visuais, chame funções, etc
+            document.getElementById("hostIpEstoque").value = ips.estoque;
+            document.getElementById("hostIpProcesso").value = ips.processo;
+            document.getElementById("hostIpMontagem").value = ips.montagem;
+            document.getElementById("hostIpExpedicao").value = ips.expedicao;
+            // Talvez chamar conectar automaticamente, ou atualizar UI para estado conectado
+        }
+    }
+};
+
+// ... (mantidas as funções executarPedido e corParaInt do código anterior)
+
+// Funções relacionadas a pedidos (mantidas para compatibilidade)
+function executarPedido() {
+    const tipo = document.getElementById("tipoPedido").value;
+    const ipClp = document.getElementById("hostIpEstoque").value;
+
+    if (!ipClp) {
+        alert("Por favor, informe o IP do CLP.");
+        return;
+    }
+     // Verifica conexão
+     if (!conectado || pausado) {
+        throw new Error("Conecte-se à bancada primeiro");
+    }
+
+    let blocosCount = tipo === "simples" ? 1 : tipo === "duplo" ? 2 : 3;
+    let blocos = [];
+
+    for (let b = 1; b <= blocosCount; b++) {
+        const corInput = document.getElementById(`block-color-${b}`);
+        let cor = 3; // Padrão: azul
+        if (corInput.value === "preto") {
+            cor = 1;
+        } else if (corInput.value === "vermelho") {
+            cor = 2;
         }
     
-        // Restaura cores dos inputs se existirem no sessionStorage
-        document.querySelectorAll('.bancada-input').forEach(input => {
-            const cor = sessionStorage.getItem(`corFonte_${input.id}`);
-            if (cor) {
-                input.style.color = cor;
-            }
-        });
+        let bloco = {
+            andar: b,
+            cor: cor,
+            laminas: []
+        };
+    
+        for (let l = 1; l <= 3; l++) {
+            const corLam = document.getElementById(`l${l}-color-${b}`).value;
+            const padrao = document.getElementById(`l${l}-pattern-${b}`).value;
+    
+            bloco.laminas.push({
+                numero: l,
+                cor: corParaInt(corLam),
+                padrao: parseInt(padrao)
+            });
+        }
+    
+        blocos.push(bloco);
+    }
+
+    const pedidoDTO = {
+        tipo: tipo,
+        ipClp: ipClp,
+        blocos: blocos
+    };
+    console.log("Executando pedido para IP CLP:", ipClp);
+    fetch("http://localhost:8081/iniciar-pedido", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedidoDTO)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Pedido executado com sucesso!");
+        } else {
+            alert("Erro ao executar pedido.");
+            response.text().then(text => console.error("Erro resposta:", text));
+        }
+    })
+    .catch(error => {
+        console.error("Erro na requisição:", error);
+        alert("Erro na comunicação com o servidor.");
     });
+    
+}
 
-
-
+function corParaInt(cor) {
+    switch (cor.toLowerCase()) {
+        case "vermelho": return 1;
+        case "azul": return 2;
+        case "amarelo": return 3;
+        case "verde": return 4;
+        case "preto": return 5;
+        case "branco": return 6;
+        default: return 0;
+    }
+}

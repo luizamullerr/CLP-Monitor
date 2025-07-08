@@ -19,7 +19,11 @@ public class Pedido {
     private Long id;
 
     private String tipo;
+
+    private String status;
     
+    
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Bloco> blocos;
@@ -48,6 +52,14 @@ public class Pedido {
 
     public void setBlocos(List<Bloco> blocos) {
         this.blocos = blocos;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     

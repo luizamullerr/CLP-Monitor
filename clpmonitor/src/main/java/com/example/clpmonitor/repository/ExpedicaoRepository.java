@@ -12,18 +12,19 @@ import com.example.clpmonitor.model.Expedicao;
 @Repository
 public interface ExpedicaoRepository extends JpaRepository<Expedicao, Long> {
 
-    @Query("SELECT e.posicao FROM Expedicao e WHERE e.status != 0 ORDER BY e.posicao ASC")
-    List<Integer> findAllPosicoesOcupadas();
+    Optional<Expedicao> findByStorageIdAndPosicao(Short storageId, Integer posicao);
 
-    Optional<Expedicao> findByPosicao(int posicao);
+List<Expedicao> findByStorageId(Short storageId);
 
-    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Expedicao e WHERE e.posicao = :posicao AND e.status != 0")
-    boolean isPosicaoOcupada(Integer posicao);
+Optional<Expedicao> findByPosicao(Integer posicao);
 
-    @Query("SELECT e.posicao FROM Expedicao e WHERE e.status = 0 ORDER BY e.posicao ASC")
-    List<Integer> findPosicoesLivres();
+@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Expedicao e WHERE e.posicao = :posicao AND e.status != 0")
+boolean isPosicaoOcupada(Integer posicao);
 
-    Optional<Expedicao> findByStorageIdAndPosicao(short storageId, int posicao);
+@Query("SELECT e.posicao FROM Expedicao e WHERE e.numeroOp > 0")
+List<Integer> findAllPosicoesOcupadas();
 
-    List<Expedicao> findByStorageId(short storageId);
+@Query("SELECT e.posicao FROM Expedicao e WHERE e.status = 0 ORDER BY e.posicao ASC")
+List<Integer> findPosicoesLivres();
+
 }

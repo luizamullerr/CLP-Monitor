@@ -185,48 +185,38 @@ function renderBlocos() {
 
     verBlocosMontados();
 }
-const coresMap = {
-    1: "preto",
-    2: "vermelho",
-    3: "azul",
-    4: "amarelo",
-    5: "Branco",
-    6: "verde"
-   
-  };
-// Função auxiliar para renderizar os blocos do pedido
-// Função auxiliar para renderizar os blocos do pedido
+
 function renderBlocosPedido(blocos) {
     return blocos.map((bloco, idx) => {
-      const nomeCor = coresMap[bloco.cor] || "desconhecido";
-  
-      const laminasTexto = bloco.laminas.map((lamina, i) => {
-        const nomeCorLamina = coresMap[lamina.cor] || "desconhecido";
-        return `Lâmina ${i + 1}: Cor ${nomeCorLamina}, Padrão ${lamina.padrao || "-"}`;
-      }).join("<br>");
-  
-      return `
-        <div class="bloco-pedido" id="bloco-pedido-${idx}">
-          <p>Cor do bloco: <strong>${nomeCor}</strong></p>
-          <p>${laminasTexto}</p>
-        </div>
-      `;
+        const nomeCor = getCorBlocoText(bloco.cor);
+
+        const laminasTexto = bloco.laminas.map((lamina, i) => {
+            const nomeCorLamina = getCorLaminaText(lamina.cor);
+            return `Lâmina ${i + 1}: Cor ${nomeCorLamina}, Padrão ${lamina.padrao || "-"}`;
+        }).join("<br>");
+
+        return `
+            <div class="bloco-pedido" id="bloco-pedido-${idx}">
+                <p>Cor do bloco: <strong>${nomeCor}</strong></p>
+                <p>${laminasTexto}</p>
+            </div>
+        `;
     }).join("");
 }
 
 // Função auxiliar para renderizar as lâminas
 function renderLaminas(laminas) {
     if (!laminas || laminas.length === 0) return '<p>Nenhuma lâmina neste bloco</p>';
-  
+
     laminas.forEach((lamina, index) => {
-      console.log(`Lâmina ${index + 1}: cor =`, lamina.cor, typeof lamina.cor);
+        console.log(`Lâmina ${index + 1}: cor =`, lamina.cor, typeof lamina.cor);
     });
-  
+
     return laminas.map((lamina, index) => {
-      const corClass = `lamina-color-${lamina.cor}`;
-      const padraoText = getPadraoText(lamina.padrao);
-  
-      return `
+        const corClass = `lamina-color-${lamina.cor}`;
+        const padraoText = getPadraoText(lamina.padrao);
+
+        return `
         <div class="lamina-info">
           <span class="lamina-label ${corClass}">
             <span class="material-symbols-rounded">layers</span>
@@ -238,7 +228,7 @@ function renderLaminas(laminas) {
         </div>
       `;
     }).join('');
-  }
+}
 
 function getStatusClass(status) {
     switch (status?.toLowerCase()) {
@@ -248,22 +238,27 @@ function getStatusClass(status) {
     }
 }
 
-function getCorText(cor) {
-    if (cor == null || cor === "") return "desconhecido";
-  
+function getCorBlocoText(cor) {
     const coresMap = {
-      "1": "preto",
-      "2": "vermelho",
-      "3": "azul",
-      "4": "amarelo",
-      "5": "branco",
-      "6": "verde",
-      
+        "1": "preto",
+        "2": "vermelho",
+        "3": "azul"
     };
-  
-    const corKey = String(cor).trim().toLowerCase();
-    return coresMap[corKey] || "desconhecido";
-  }
+    return coresMap[String(cor).trim()] || "desconhecido";
+}
+
+// Para as cores das lâminas (6 cores)
+function getCorLaminaText(cor) {
+    const coresMap = {
+        "1": "vermelho",
+        "2": "azul",
+        "3": "amarelo",
+        "4": "verde",
+        "5": "preto",
+        "6": "branco"
+    };
+    return coresMap[String(cor).trim()] || "desconhecido";
+}
 
 function getPadraoText(padrao) {
     if (!padrao) return '';
@@ -528,17 +523,17 @@ function spin(id) {
 
 function corParaInt(corStr) {
     if (!corStr) return 0;  // Cor inválida vira zero (sem cor)
-    
+
     switch (corStr.toLowerCase()) {
-      case "preto": return 1;
-      case "vermelho": return 2;
-      case "azul": return 3;
-      case "branco": return 5;
-      default:
-        const num = parseInt(corStr, 10);
-        return isNaN(num) ? 0 : num;
+        case "preto": return 1;
+        case "vermelho": return 2;
+        case "azul": return 3;
+        case "branco": return 5;
+        default:
+            const num = parseInt(corStr, 10);
+            return isNaN(num) ? 0 : num;
     }
-  }
+}
 
 // Envia pedido para a base de dados
 function enviarPedido() {
@@ -586,18 +581,18 @@ function enviarPedido() {
                 });
             }
         }
-        
+
 
         if (corBloco) {
             pedido.blocos.push({
-              cor: corParaInt(corBloco),         // <-- converte aqui
-              laminas: laminas.map(l => ({        // <-- converte cada lâmina
-                cor: corParaInt(l.cor),
-                padrao: l.padrao || null
-              }))
+                cor: corParaInt(corBloco),         // <-- converte aqui
+                laminas: laminas.map(l => ({        // <-- converte cada lâmina
+                    cor: corParaInt(l.cor),
+                    padrao: l.padrao || null
+                }))
             });
-          }
-        });
+        }
+    });
 
     // Verifica se pelo menos um bloco foi adicionado
     if (pedido.blocos.length === 0) {
@@ -610,7 +605,7 @@ function enviarPedido() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([pedido])
-        
+
     })
         .then(res => {
             if (res.ok) {
@@ -684,10 +679,11 @@ function listaPedidos() {
                     
                     <div class="pedido-footer">
                         <span class="pedido-status ${getStatusClass(pedido.status)}">
-                            ${pedido.status || 'pendente'}
-                        </span>
-                        <button class="excluir-btn" data-id="${pedido.id}">Excluir</button>
-                    </div>
+                              ${pedido.status || 'pendente'}
+                                  </span>
+                          <button class="excluir-btn" data-id="${pedido.id}">Excluir</button>
+                             <button class="enviar-btn" data-index="${index}"> Montar Pedido</button>
+                      </div>
                 `;
 
                 listaContainer.appendChild(pedidoDiv);
@@ -698,6 +694,15 @@ function listaPedidos() {
                     excluirPedido(pedidoId);
                 });
             });
+            document.querySelectorAll(".enviar-btn").forEach(button => {
+                button.addEventListener("click", () => {
+                    const indexPedido = button.getAttribute("data-index");
+                    const pedidoSelecionado = data[indexPedido];
+                    enviarPedidoIndividual(pedidoSelecionado);
+                });
+            });
+            // Botões "Enviar"
+
         })
         .catch(err => {
             console.error("Erro:", err);
@@ -709,6 +714,56 @@ function listaPedidos() {
             `;
         });
 }
+console.log(localStorage.getItem("ips"));
+function enviarPedidoIndividual(pedido) {
+    if (!pedido) {
+        alert("Pedido inválido.");
+        return;
+    }
+
+    // Buscar o IP salvo no sessionStorage ou localStorage
+    const ips = JSON.parse(localStorage.getItem("ips"));
+    if (!ips) {
+        alert("Você não está conectado ao CLP. Conecte-se primeiro.");
+        return;
+    }
+
+    const ipClp = ips.estoque;  // Ou o campo correto do IP conforme o tipo de pedido
+
+    // Agora usa ipClp para montar o pedido
+    const pedidoDTO = {
+        ipClp: ipClp,
+        tipo: pedido.tipo,
+        blocos: pedido.blocos.map(bloco => ({
+            andar: bloco.andar || 1,
+            cor: bloco.cor,
+            laminas: bloco.laminas.map(l => ({
+                cor: l.cor,
+                padrao: l.padrao
+            }))
+        }))
+    };
+
+    fetch("/iniciar-pedido", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedidoDTO)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Erro ao enviar pedido ao CLP");
+        return res.text();
+    })
+    .then(msg => {
+        alert(msg);
+        listaPedidos(); // Atualiza a lista após envio
+    })
+    .catch(err => {
+        alert("Erro: " + err.message);
+        console.error(err);
+    });
+}
+
+
 function excluirPedido(id) {
     if (!confirm("Tem certeza que deseja excluir este pedido?")) return;
 

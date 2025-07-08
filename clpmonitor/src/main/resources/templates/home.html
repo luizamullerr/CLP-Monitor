@@ -5,6 +5,11 @@
     <title>Painel Industrial</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/stylehome.css}">
+    <style>
+        .bancada-input {
+            transition: color 0.3s ease;
+        }
+    </style>
 </head>
 
 <body>
@@ -46,7 +51,7 @@
                 <li class="nav-item">
                     <a href="/block" class="nav-link">
                         <i class="fas fa-cog"></i>
-                        <span>Gestor</span>
+                        <span>Configuração</span>
                     </a>
                 </li>
             </ul>
@@ -54,8 +59,6 @@
 
         <!-- Conteúdo Principal -->
         <main class="main-content">
-
-
             <div class="dashboard-cards">
                 <div class="dashboard-card">
                     <a href="/monitor">
@@ -80,7 +83,7 @@
 
                 <div class="dashboard-card">
                     <a href="/block">
-                        <h3><i class="fas fa-cog"></i> Gestor</h3>
+                        <h3><i class="fas fa-cog"></i> Configuração</h3>
                         <p>Personalize os parâmetros do sistema e configurações dos equipamentos.</p>
                     </a>
                 </div>
@@ -89,7 +92,6 @@
             <header>
                 <h1 class="h1title">Bancada Smart 4.0</h1>
             </header>
-
 
             <div class="bancada-container">
                 <img id="bancada4" th:src="@{/assets/bancada/Bancada.png}" class="bancada-imagem">
@@ -114,11 +116,9 @@
             </div>
 
             <div id="saidaHex"></div>
-
         </main>
     </div>
 
     <script src="/js/smart.js"></script>
 </body>
-
 </html>

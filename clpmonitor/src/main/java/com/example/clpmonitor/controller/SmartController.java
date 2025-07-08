@@ -3,6 +3,7 @@ package com.example.clpmonitor.controller;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.clpmonitor.dto.BlocoDTO;
 import com.example.clpmonitor.dto.LaminaDTO;
 import com.example.clpmonitor.dto.PedidoDTO;
-import com.example.clpmonitor.model.Estoque;
+import com.example.clpmonitor.model.DbBlock;
 import com.example.clpmonitor.model.Expedicao;
-import com.example.clpmonitor.repository.EstoqueRepository;
+import com.example.clpmonitor.repository.DbBlockRepository;
 import com.example.clpmonitor.repository.ExpedicaoRepository;
 import com.example.clpmonitor.repository.PedidoRepository;
 import com.example.clpmonitor.service.SmartService;
@@ -47,8 +49,7 @@ public class SmartController {
     private SmartService smartService;
 
     @Autowired
-    private EstoqueRepository estoqueRepository;
-
+    private DbBlockRepository blockRepository;
     @Autowired
     private ExpedicaoRepository expedicaoRepository;
 
@@ -57,44 +58,44 @@ public class SmartController {
 
     @PostMapping("/iniciar-pedido")
     public ResponseEntity<String> iniciarPedido(@RequestBody PedidoDTO pedidoDTO) {
-        String ipClp = pedidoDTO.getIpClp();
-        List<BlocoDTO> pedido = pedidoDTO.getBlocos();
-        
-    
+    String ipClp = pedidoDTO.getIpClp();
+    List<BlocoDTO> pedido = pedidoDTO.getBlocos();
 
-        System.out.println("Pedido recebido para IP do CLP: " + ipClp);
-        for (BlocoDTO bloco : pedido) {
-            System.out.println("Andar: " + bloco.getAndar() + ", Cor do Bloco: " + bloco.getCor());
-            int i = 1;
-            for (LaminaDTO lamina : bloco.getLaminas()) {
-                System.out.println("  Lâmina-" + i + ": Cor = " + lamina.getCor() + ", Padrão = " + lamina.getPadrao());
-                i++;
-            }
+    System.out.println("Pedido recebido para IP do CLP: " + ipClp);
+    for (BlocoDTO bloco : pedido) {
+        System.out.println("Andar: " + bloco.getAndar() + ", Cor do Bloco: " + bloco.getCor());
+        int i = 1;
+        for (LaminaDTO lamina : bloco.getLaminas()) {
+            System.out.println("  Lâmina-" + i + ": Cor = " + lamina.getCor() + ", Padrão = " + lamina.getPadrao());
+            i++;
         }
-
-        try {
-            byte[] bytePedidoArray = montarPedidoParaCLP(pedido);
-
-            // Impressão em hexadecimal:
-            System.out.print("Bytes do pedido em hexadecimal: ");
-            for (byte b : bytePedidoArray) {
-                System.out.printf("%02X ", b);
-            }
-            System.out.println();
-
-            // Envia os bytes para o IP informado:
-            smartService.enviarBlocoBytesAoClp(ipClp, 9, 2, bytePedidoArray, bytePedidoArray.length);
-            // Executa o pedido
-            smartService.iniciarExecucaoPedido(ipClp);
-
-            return ResponseEntity.ok("Pedido enviado ao CLP com sucesso.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao enviar pedido ao CLP: " + e.getMessage());
-        }
-        
     }
+
+    try {
+        byte[] bytePedidoArray = montarPedidoParaCLP(pedido);
+
+        // Impressão em hexadecimal:
+        System.out.print("Bytes do pedido em hexadecimal: ");
+        for (byte b : bytePedidoArray) {
+            System.out.printf("%02X ", b);
+        }
+        System.out.println();
+
+        System.out.println("Iniciando envio dos bytes para o CLP...");
+        smartService.enviarBlocoBytesAoClp(ipClp, 9, 2, bytePedidoArray, bytePedidoArray.length);
+        System.out.println("Bytes enviados com sucesso.");
+
+        System.out.println("Iniciando execução do pedido no CLP...");
+        smartService.iniciarExecucaoPedido(ipClp);
+        System.out.println("Execução do pedido iniciada com sucesso.");
+
+        return ResponseEntity.ok("Pedido enviado ao CLP com sucesso.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao enviar pedido ao CLP: " + e.getMessage());
+    }
+}
     
     @PostMapping("/estoque/salvar")
     public ResponseEntity<String> salvarEstoque(@RequestBody Map<String, Integer> dados) {
@@ -108,15 +109,15 @@ public class SmartController {
                     if (pos >= 1 && pos <= 28) {
                         byteBlocosArray[pos - 1] = valor.byteValue();
 
-                        Estoque estoque = estoqueRepository.findByPosicaoEstoque(pos)
+                        DbBlock bloco = blockRepository.findByPosicaoEstoque(pos)
                                 .orElseGet(() -> {
-                                    Estoque novo = new Estoque();
+                                    DbBlock novo = new DbBlock();
                                     novo.setPosicaoEstoque(pos);
                                     return novo;
                                 });
 
-                        estoque.setCor(valor);
-                        estoqueRepository.save(estoque);
+                        bloco.setCor(valor);
+                        blockRepository.save(bloco);
                     }
                 } catch (Exception e) {
                     System.err.println("Erro ao processar posição: " + posStr + " - " + e.getMessage());
@@ -141,10 +142,10 @@ public class SmartController {
             }
 
             // Buscar todos os registros do estoque
-            List<Estoque> listaEstoque = estoqueRepository.findAll();
+            List<DbBlock> listaEstoque = blockRepository.findAll();
             byte[] byteBlocosArray = new byte[28];
 
-            for (Estoque e : listaEstoque) {
+            for (DbBlock e : listaEstoque) {
                 int pos = e.getPosicaoEstoque(); // posição de 1 a 28
                 if (pos >= 1 && pos <= 28) {
                     byteBlocosArray[pos - 1] = (byte) e.getCor().byteValue();
@@ -229,14 +230,15 @@ public class SmartController {
                         byteBlocosArray[pos - 1] = valor.byteValue();
 
                         // Persistência no banco de dados
-                        Estoque estoque = estoqueRepository.findByPosicaoEstoque(pos)
+                        DbBlock bloco = blockRepository.findByPosicaoEstoque(pos)
                                 .orElseGet(() -> {
-                                    Estoque novo = new Estoque();
-                                    novo.setPosicaoEstoque(pos);
+                                    DbBlock novo = new DbBlock(); // precisa do construtor vazio
+                                    novo.setPosicaoEstoque( pos); // ou apenas `pos` se o método aceitar Integer
                                     return novo;
                                 });
-                        estoque.setCor(valor);
-                        estoqueRepository.save(estoque);
+
+                            bloco.setCor( valor);
+                            blockRepository.save(bloco);
                     }
                 } catch (Exception e) {
                     System.err.println("Erro ao processar posição: " + posStr + " - " + e.getMessage());
@@ -343,6 +345,19 @@ public class SmartController {
         }
     }
 
+    @GetMapping("/valores-estoque")
+public Map<String, Integer> carregarValoresEstoque() {
+    List<DbBlock> lista = blockRepository.findAll(Sort.by(Sort.Direction.ASC, "posicaoEstoque"));
+
+    Map<String, Integer> valores = new LinkedHashMap<>();
+
+    for (DbBlock bloco : lista) {
+        String chave = "P" + bloco.getPosicaoEstoque(); // Ex: "P1", "P2", ...
+        valores.put(chave, bloco.getCor());
+    }
+
+    return valores;
+}
     @GetMapping("/expedicao/primeira-livre")
     public ResponseEntity<Integer> buscarLivre() {
         int posicaoLivre = smartService.buscarPrimeiraPosicaoLivreExp();
@@ -354,42 +369,42 @@ public class SmartController {
         Set<Integer> posicoesUsadas = new HashSet<>(); // Para evitar duplicidade
         int andares = pedido.size();
 
-        for (BlocoDTO bloco : pedido) {
-            int indexBase = (bloco.getAndar() - 1) * 9;
-
+        for (int i = 0; i < pedido.size(); i++) {
+            BlocoDTO bloco = pedido.get(i);
+            int indexBase = i * 9;  // <-- CORREÇÃO AQUI!
+        
             if (indexBase + 8 >= dados.length) {
-                System.out.println("Ignorando andar fora do esperado: " + bloco.getAndar());
+                System.out.println("Ignorando bloco extra (index " + i + ")");
                 continue;
             }
-
+        
             int corBloco = bloco.getCor();
-
-            // Buscar posição disponível para essa cor, que ainda não foi usada
+        
+            // Pega a posição do estoque
             int posicaoEstoque = smartService.buscarPrimeiraPosicaoPorCor(corBloco, posicoesUsadas);
-
-            // Marcar como usada (se válida)
             if (posicaoEstoque != -1) {
                 posicoesUsadas.add(posicaoEstoque);
             }
-
+        
             dados[indexBase] = corBloco;
             dados[indexBase + 1] = posicaoEstoque;
-
+        
             List<LaminaDTO> laminas = bloco.getLaminas();
-            for (int i = 0; i < Math.min(3, laminas.size()); i++) {
-                dados[indexBase + 2 + i] = laminas.get(i).getCor();
-                dados[indexBase + 5 + i] = laminas.get(i).getPadrao();
+            for (int j = 0; j < Math.min(3, laminas.size()); j++) {
+                dados[indexBase + 2 + j] = laminas.get(j).getCor();
+                dados[indexBase + 5 + j] = laminas.get(j).getPadrao();
             }
-
-            dados[indexBase + 8] = 0; // processamento_Andar_X
+        
+            dados[indexBase + 8] = 0; // processamento
         }
+        
 
         // Buscar próximo número de orderProduction
         int nextOrderProduction = pedidoRepository.findMaxOrderProduction() + 1;
         dados[27] = nextOrderProduction;
         dados[28] = andares;
-        // int posicaoExpedicao = smartService.buscarPrimeiraPosicaoLivreExp();
-        // dados[29] = posicaoExpedicao;
+        int posicaoExpedicao = smartService.buscarPrimeiraPosicaoLivreExp();
+        dados[29] = 0;
 
         // Impressão dos dados antes da conversão para byte[]
         System.out.println("// InfoPedido");
@@ -410,7 +425,8 @@ public class SmartController {
         // Extras, se estiverem disponíveis em algum contexto
         System.out.println("numeroPedidoEst...............: " + nextOrderProduction); // adapte conforme necessário
         System.out.println("andares.......................: " + andares);
-        System.out.println("posicaoExpedicaoEst...........: " + 0); // adapte conforme necessário
+        
+        System.out.println("posicaoExpedicaoEst...........: " + posicaoExpedicao); // adapte conforme necessário
 
         // Converte os 30 inteiros (int[30]) em 60 bytes (byte[])
         ByteBuffer buffer = ByteBuffer.allocate(60).order(ByteOrder.BIG_ENDIAN);
@@ -419,6 +435,20 @@ public class SmartController {
         }
 
         return buffer.array();
+    }
+
+    @GetMapping("/valores-expedicao")
+    public Map<String, Integer> carregarValoresExpedicao() {
+        List<Expedicao> lista = expedicaoRepository.findAll(Sort.by(Sort.Direction.ASC, "posicao"));
+
+        Map<String, Integer> valores = new LinkedHashMap<>();
+
+        for (Expedicao exp : lista) {
+            String chave = "P" + exp.getPosicao(); // Ex: posicao_1, posicao_2...
+            valores.put(chave, exp.getNumeroOp());
+        }
+
+        return valores;
     }
 
 }

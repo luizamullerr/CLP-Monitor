@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -29,19 +30,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.clpmonitor.model.DbBlock;
-import com.example.clpmonitor.model.Estoque;
 import com.example.clpmonitor.model.Expedicao;
 import com.example.clpmonitor.model.PlcReaderTask;
 import com.example.clpmonitor.model.Tag;
 import com.example.clpmonitor.model.TagReadRequest;
 import com.example.clpmonitor.model.TagWriteRequest;
-import com.example.clpmonitor.repository.EstoqueRepository;
+import com.example.clpmonitor.repository.DbBlockRepository;
+import com.example.clpmonitor.repository.PedidoRepository;
 import com.example.clpmonitor.service.ClpSimulatorService;
 import com.example.clpmonitor.service.ClpSimulatorService.PlcConnectionManager;
 import static com.example.clpmonitor.service.ClpSimulatorService.atualizarCache;
 import com.example.clpmonitor.service.DbBlockService;
 import com.example.clpmonitor.service.ExpedicaoService;
 import com.example.clpmonitor.service.PlcConnector;
+import com.example.clpmonitor.service.SmartService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
@@ -50,6 +52,7 @@ public class ClpController {
     @Autowired
     private ClpSimulatorService simulatorService;
 
+
     @Autowired
     private DbBlockService dbBlockService;
 
@@ -57,8 +60,13 @@ public class ClpController {
     private ExpedicaoService expedicaoService;
 
     @Autowired
-    private EstoqueRepository estoqueRepository;
+    private DbBlockRepository blockRepository;
 
+    @Autowired
+    private PedidoRepository pedidoRepository;
+
+    @Autowired
+    private SmartService smartService;
    
 
     private final Map<String, Future<?>> leituraFutures = new ConcurrentHashMap<>();
@@ -196,7 +204,7 @@ public class ClpController {
     model.addAttribute("blocosExpedicao", blocosExpedicao);
 
     // ✅ Adiciona os dados de estoque
-    List<Estoque> estoqueList = estoqueRepository.findAll(); // ou estoqueService se preferir
+    List<DbBlock> estoqueList = blockRepository.findAll(); // ou estoqueService se preferir
     model.addAttribute("estoqueList", estoqueList);
 
     return "block";
@@ -233,49 +241,48 @@ public class DbBlockListWrapper {
 @PostMapping("/block/expedicao")
 public String salvarBlockEExpedicao(
     @ModelAttribute("block") DbBlock bloco,
-    @RequestParam Map<String, String> productionOrders,
-    @RequestParam Map<String, String> positions) {
+    @RequestParam MultiValueMap<String, String> productionOrders,
+    @RequestParam MultiValueMap<String, String> positions) {
 
-    if (bloco != null && bloco.getPosition() != null) {
+    if (bloco != null && bloco.getPosicaoEstoque() != null) {
         dbBlockService.cadastrarBloco(bloco);
     }
 
     if (productionOrders != null && positions != null) {
-        // Substitua seu loop antigo por esse:
-        for (String posStr : positions.values()) {
-            if (posStr == null || posStr.isEmpty()) {
-                continue; // Ignora valores vazios
-            }
-
-            int pos;
+        for (String key : positions.keySet()) {
+            if (!key.startsWith("positions.")) continue;
+            String posStr = key.substring("positions.".length()); // extrai o número após "positions."
+            if (posStr == null || posStr.isEmpty()) continue;
+        
+            Integer pos;
             try {
-                pos = Integer.parseInt(posStr);
+                pos = Integer.valueOf(posStr);
             } catch (NumberFormatException e) {
-                continue; // Ignora posições inválidas
+                continue;
             }
-
-            String opStr = productionOrders.get(posStr);
-            Integer numeroOp = null;
-
+        
+            
+            String opStr = productionOrders.getFirst("productionOrders." + posStr); 
+            Integer numeroOp = 0;
             if (opStr != null && !opStr.isEmpty()) {
                 try {
-                    numeroOp = Integer.parseInt(opStr);
+                    numeroOp = Integer.valueOf(opStr);
                 } catch (NumberFormatException e) {
-                    numeroOp = null; // Ignora OP inválida
+                    numeroOp = 0;
                 }
             }
-
+        
             Expedicao existente = expedicaoService.buscarPorPosicaoEStorageId(pos, (short) 2);
             if (existente == null) {
                 existente = new Expedicao();
                 existente.setPosicao(pos);
                 existente.setStorageId((short) 2);
+                existente.setStatus(1);
             }
             existente.setNumeroOp(numeroOp);
-            existente.setStatus(1);
-
             expedicaoService.salvar(existente);
         }
+        
     }
 
     return "redirect:/block";
@@ -336,24 +343,47 @@ public String salvarBlockEExpedicao(
                 switch (nome.toLowerCase()) {
                     case "estoque" -> task = new PlcReaderTask(plcConnector, nome, 9, 0, 111, dados -> {
                         ClpController.dadosClp1 = dados;
-                        ClpSimulatorService.clpEstoque(ip, dados);
                         atualizarCache("estoque", dados);
+
+                        byte[] dadosBytes = new byte[dados.size()];
+                        for (int i = 0; i < dados.size(); i++) {
+                        dadosBytes[i] = (byte) (int) dados.get(i);
+                            }
+                        smartService.clpEstoque(ip, dadosBytes);
+                        
                     });
                     case "processo" -> task = new PlcReaderTask(plcConnector, nome, 2, 0, 9, dados -> {
                         ClpController.dadosClp2 = dados;
-                        ClpSimulatorService.clpProcesso(ip, dados);
                         atualizarCache("processo", dados);
-                    });
+
+                        byte[] dadosBytes = new byte[dados.size()];
+                        for (int i = 0; i < dados.size(); i++) {
+                        dadosBytes[i] = (byte) (int) dados.get(i);
+                            }
+                        smartService.clpProcesso(ip, dadosBytes);
+                        });
+                    
                     case "montagem" -> task = new PlcReaderTask(plcConnector, nome, 57, 0, 9, dados -> {
                         ClpController.dadosClp3 = dados;
-                        ClpSimulatorService.clpMontagem(ip, dados);
                         atualizarCache("montagem", dados);
-                    });
+
+                        byte[] dadosBytes = new byte[dados.size()];
+                        for (int i = 0; i < dados.size(); i++) {
+                        dadosBytes[i] = (byte) (int) dados.get(i);
+                            }
+                        smartService.clpMontagem(ip, dadosBytes);
+                        });
+                    
                     case "expedicao" -> task = new PlcReaderTask(plcConnector, nome, 9, 0, 48, dados -> {
                         ClpController.dadosClp4 = dados;
-                        ClpSimulatorService.clpExpedicao(ip, dados);
                         atualizarCache("expedicao", dados);
-                    });
+
+                        byte[] dadosBytes = new byte[dados.size()];
+                        for (int i = 0; i < dados.size(); i++) {
+                        dadosBytes[i] = (byte) (int) dados.get(i);
+                            }
+                        smartService.clpExpedicao(ip, dadosBytes);
+                        });
                     default -> {
                         System.err.println("Nome de CLP inválido: " + nome);
                         return;
@@ -380,4 +410,6 @@ public String salvarBlockEExpedicao(
         PlcConnectionManager.encerrarTodasAsConexoes();
         return ResponseEntity.ok("Leituras interrompidas.");
     }
+
+
 }

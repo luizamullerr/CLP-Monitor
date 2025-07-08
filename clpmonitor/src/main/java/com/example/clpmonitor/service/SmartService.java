@@ -18,8 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.clpmonitor.model.Estoque;
-import com.example.clpmonitor.repository.EstoqueRepository;
+import com.example.clpmonitor.model.DbBlock;
+import com.example.clpmonitor.repository.DbBlockRepository;
 import com.example.clpmonitor.repository.ExpedicaoRepository;
 import com.example.clpmonitor.service.ClpSimulatorService.PlcConnectionManager;
 
@@ -47,12 +47,15 @@ public class SmartService {
     public static boolean blockFinished = false;
 
     @Autowired
-    private EstoqueRepository estoqueRepository;
+    private DbBlockRepository blockRepository;
 
     @Autowired
     private ExpedicaoRepository expedicaoRepository;
 
      private Map<String, List<String>> eventosCLP = new ConcurrentHashMap<>();
+
+
+     
 
     // Variáveis de cada estação
     //********************** Estoque ***************************
@@ -249,6 +252,7 @@ public class SmartService {
         plcConnector.writeBlock(db, offset, size, dados); // escreve no bloco de dados
 
     }
+    
 
     public void iniciarExecucaoPedido(String ipClp) {
 
@@ -294,6 +298,8 @@ public class SmartService {
 
     //*************************************************************
     // Funções para processamento de cada estação da bancada smart
+
+    
     //*************************************************************
     //********************************************************************************************************************************************** */
     public void clpEstoque(String ip, byte[] dadosClp1) {
@@ -487,7 +493,7 @@ public class SmartService {
                     HttpEntity<Map<String, Integer>> request = new HttpEntity<>(dadosMap, headers);
 
                     // Envia a requisição
-                    ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/estoque/salvar", request, String.class);
+                    ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8081/estoque/salvar", request, String.class);
                     System.out.println("Resposta ao salvar estoque no banco: " + response.getBody());
 
                 } catch (Exception e) {
@@ -530,7 +536,7 @@ public class SmartService {
                     HttpEntity<Map<String, Integer>> request = new HttpEntity<>(dadosMap, headers);
 
                     // Envia a requisição
-                    ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/estoque/salvar", request, String.class);
+                    ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8081/estoque/salvar", request, String.class);
                     System.out.println("Resposta ao salvar estoque no banco: " + response.getBody());
 
                 } catch (Exception e) {
@@ -995,7 +1001,7 @@ public class SmartService {
                     HttpEntity<Map<String, Integer>> request = new HttpEntity<>(dadosExp, headers);
 
                     ResponseEntity<String> response = restTemplate.postForEntity(
-                            "http://localhost:8080/expedicao/salvar",
+                            "http://localhost:8081/expedicao/salvar",
                             request,
                             String.class
                     );
@@ -1049,7 +1055,7 @@ public class SmartService {
 
                     // Chama o endpoint que agora deleta do banco quando valor == 0
                     ResponseEntity<String> response = restTemplate.postForEntity(
-                            "http://localhost:8080/expedicao/salvar",
+                            "http://localhost:8081/expedicao/salvar",
                             request,
                             String.class
                     );
@@ -1109,27 +1115,32 @@ public class SmartService {
 
     //********************************************************************************************************************************************** */
     public int buscarPrimeiraPosicaoPorCor(int cor, Set<Integer> posicoesUsadas) {
-        List<Estoque> estoque = estoqueRepository.findByCorOrderByPosicaoEstoqueAsc(cor);
-
-        for (Estoque e : estoque) {
+        List<DbBlock> blocos = blockRepository.findByCorOrderByPosicaoEstoqueAsc(cor);
+    
+        for (DbBlock e : blocos) {
             if (!posicoesUsadas.contains(e.getPosicaoEstoque())) {
                 return e.getPosicaoEstoque();
             }
         }
-
+    
         return -1; // Nenhuma posição disponível
     }
+    
 
     public int buscarPrimeiraPosicaoLivreExp() {
         List<Integer> ocupadas = expedicaoRepository.findAllPosicoesOcupadas();
+    System.out.println(">>> POSIÇÕES OCUPADAS: " + ocupadas);
 
-        for (int i = 1; i <= 12; i++) {
-            if (!ocupadas.contains(i)) {
-                return i;
-            }
+    for (int i = 1; i <= 12; i++) {
+        if (!ocupadas.contains(i)) {
+            System.out.println(">>> Encontrada posição livre: " + i);
+            return i;
         }
-        return -1;
     }
+
+    System.out.println(">>> Nenhuma posição livre encontrada.");
+    return -1;
+}
 
    /* public boolean isReadOnly() {
         return readOnly;

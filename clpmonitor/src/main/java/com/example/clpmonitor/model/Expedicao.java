@@ -15,7 +15,7 @@ public class Expedicao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "posicao", unique = true)
+    @Column(name = "posicao")
     private Integer posicao;
 
     @Column(name = "numero_op")
@@ -32,10 +32,25 @@ public class Expedicao {
 
     public Expedicao() {}
 
+    public Expedicao(Integer posicao, Integer numeroOp, Integer status, Short storageId) {
+        this.posicao = posicao;
+        this.numeroOp = numeroOp;
+        this.status = status;
+        this.storageId = storageId;
+    }
+
     public Expedicao(Integer posicao, Integer numeroOp, Integer status) {
         this.posicao = posicao;
         this.numeroOp = numeroOp;
         this.status = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
     }
 
     // Getters e setters para posicao
@@ -83,12 +98,5 @@ public class Expedicao {
         this.storageId = storageId;
     }
 
-    // Opcional: getter/setter para usar "productionOrder" no template
-    public Integer getProductionOrder() {
-        return this.numeroOp;
-    }
-
-    public void setProductionOrder(Integer productionOrder) {
-        this.numeroOp = productionOrder;
-    }
+  
 }

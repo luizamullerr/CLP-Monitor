@@ -44,11 +44,11 @@
                             <div class="estoque-grid" id="estoqueGrid">
                                 <div th:each="bloco, iterStat : ${blocos}" 
                                      class="cell editable-cell"
-                                     th:data-position="${bloco.position}" 
-                                     th:attr="data-color=${bloco.color}"
-                                     th:classappend="'cor-' + ${bloco.color}">
+                                     th:data-position="${bloco.posicaoEstoque}" 
+                                     th:attr="data-color=${bloco.cor}"
+                                     th:classappend="'cor-' + ${bloco.cor}">
                                     <div class="color-editor">
-                                        <span class="color-value" th:text="${bloco.color}"></span>
+                                        <span class="color-value" th:text="${bloco.cor}"></span>
                                     </div>
                                 </div>
                             </div>
@@ -60,8 +60,8 @@
                         </div>
 
                         <!-- Inputs hidden gerados por JS -->
-                        <input type="hidden" id="position" name="position" />
-                        <input type="hidden" id="color" name="color" />
+                        <input type="hidden" id="posicaoEstoque" name="posicaoEstoque" />
+                        <input type="hidden" id="cor" name="cor" />
                         <input type="hidden" id="storageId" name="storageId" value="1" />
 
                         <button type="submit" id="btnSalvarEstoque">Salvar Estoque</button>
@@ -70,16 +70,23 @@
 
                 <!-- Container 2 -->
                 <div class="container2">
-                    <h2>Expedição (3x4)</h2>
-
+                    <h2>Expedição (4x3)</h2>
+                
+                    <!-- FORM POST PARA /block/expedicao -->
                     <form th:action="@{/block/expedicao}" method="post">
                         <div class="expedicao-grid">
-                            <div th:each="bloco : ${blocosExpedicao}" class="cell">
-                                <label th:text="'P' + ${bloco.posicao} + ':'"></label><br />
-                                <input type="number" th:name="'productionOrders[' + ${bloco.posicao} + ']'"
-                                       th:value="${bloco.numeroOp}" min="0" placeholder="OP" />
-                                <input type="hidden" th:name="'positions[' + ${bloco.posicao} + ']'"
-                                       th:value="${bloco.posicao}" />
+                            <div th:each="linha : ${blocosExpedicao}" class="linha"> <!-- linha é List<Expedicao> -->
+                                <div th:each="bloco : ${linha}" class="cell">
+                                    <label th:text="'P' + ${bloco.posicao} + ':'"></label><br />
+                                    <input type="number"
+                                           th:name="'productionOrders.' + ${bloco.posicao}"
+                                           th:value="${bloco.numeroOp}"
+                                           min="0"
+                                           placeholder="OP" />
+                                    <input type="hidden"
+                                           th:name="'positions.' + ${bloco.posicao}"
+                                           th:value="${bloco.posicao}" />
+                                </div>
                             </div>
                         </div>
                         <button type="submit" id="btnSalvarExpedicao">Salvar Expedição</button>
@@ -92,71 +99,181 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.querySelector('.form-block');
-    const inputPosicao = document.getElementById("position");
-    const inputCor = document.getElementById("color");
-    const inputStorageId = document.getElementById("storageId");
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector('.form-block');
+        const inputPosicao = document.getElementById("posicaoEstoque");
+        const inputCor = document.getElementById("cor");
+        const inputStorageId = document.getElementById("storageId");
 
-    const alteracoes = {};
+        const alteracoes = {};
 
-    document.querySelectorAll('.editable-cell').forEach(cell => {
-        const colorValue = cell.querySelector('.color-value');
-        const position = cell.dataset.position;
+        // Inicializa cores e eventos das células clicáveis
+        document.querySelectorAll('.editable-cell').forEach(cell => {
+            const colorValue = cell.querySelector('.color-value');
+            const position = cell.dataset.position;
 
-        let valorAtual = parseInt(cell.dataset.color) || 0;
-        cell.classList.add(`cor-${valorAtual}`);
-        colorValue.textContent = valorAtual;
-
-        alteracoes[position] = {
-            position: position,
-            color: valorAtual,
-            storageId: 1
-        };
-
-        cell.addEventListener('click', function () {
-            // Próxima cor
-            valorAtual = (valorAtual + 1) % 4;
-
-            // Atualiza visual
-            cell.classList.remove('cor-0', 'cor-1', 'cor-2', 'cor-3');
+            let valorAtual = parseInt(cell.dataset.color) || 0;
             cell.classList.add(`cor-${valorAtual}`);
             colorValue.textContent = valorAtual;
 
-            // Atualiza dados
             alteracoes[position] = {
-                position: position,
-                color: valorAtual,
+                posicaoEstoque: position,
+                cor: valorAtual,
                 storageId: 1
             };
 
-            // Atualiza campos ocultos
-            inputPosicao.value = position;
-            inputCor.value = valorAtual;
-            inputStorageId.value = 1;
-        });
-    });
+            cell.addEventListener('click', function () {
+                valorAtual = (valorAtual + 1) % 4;
+                cell.classList.remove('cor-0', 'cor-1', 'cor-2', 'cor-3');
+                cell.classList.add(`cor-${valorAtual}`);
+                colorValue.textContent = valorAtual;
 
-    // Previne scroll do mouse em inputs number
-    document.querySelectorAll('input[type=number]').forEach(input => {
-        input.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
-    });
+                alteracoes[position] = {
+                    posicaoEstoque: position,
+                    cor: valorAtual,
+                    storageId: 1
+                };
 
-    // Submissão do formulário com dados dos blocos
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        Object.values(alteracoes).forEach(alteracao => {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'blocos';
-            hiddenInput.value = JSON.stringify(alteracao);
-            form.appendChild(hiddenInput);
+                inputPosicao.value = position;
+                inputCor.value = valorAtual;
+                inputStorageId.value = 1;
+            });
         });
 
-        this.submit();
+        // Previne scroll do mouse em input type=number
+        document.querySelectorAll('input[type=number]').forEach(input => {
+            input.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+        });
+
+        // Envio do formulário manual
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            Object.values(alteracoes).forEach(alteracao => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'blocos';
+                hiddenInput.value = JSON.stringify(alteracao);
+                form.appendChild(hiddenInput);
+            });
+
+            this.submit();
+        });
+
+        // ===============================
+        // Carregar dados do banco
+        carregarValoresEstoque();
+        carregarValoresExpedicao();
+        // ===============================
+
+        async function carregarValoresEstoque() {
+            console.log("Carregar valores Estoque");
+            const inputs = document.querySelectorAll(".input-celula");
+            try {
+                const response = await fetch("/valores-estoque");
+                const data = await response.json();
+
+                inputs.forEach((input, index) => {
+                    const pos = "P" + (index + 1);
+                    if (data[pos] !== undefined) {
+                        input.value = data[pos];
+                        input.classList.remove("cor-0", "cor-1", "cor-2", "cor-3");
+                        input.classList.add("cor-" + data[pos]);
+                    }
+                });
+            } catch (erro) {
+                console.error("Erro ao carregar valores:", erro);
+            }
+
+            // Atualiza estilo de cada input ao digitar
+            inputs.forEach(input => {
+                const applyColor = () => {
+                    const val = parseInt(input.value);
+                    input.classList.remove("cor-0", "cor-1", "cor-2", "cor-3");
+                    if (!isNaN(val) && val >= 0 && val <= 3) {
+                        input.classList.add("cor-" + val);
+                    }
+                };
+
+                applyColor(); // Estilo inicial
+                input.addEventListener("input", applyColor);
+            });
+        }
+
+        async function carregarValoresExpedicao() {
+            console.log("Carregar valores Expedição");
+            try {
+                const response = await fetch("/valores-expedicao");
+                const data = await response.json();
+
+                const expedicaoInputs = document.querySelectorAll(".grid.expedicao .input-expedicao");
+
+                expedicaoInputs.forEach((input, index) => {
+                    const pos = "P" + (index + 1);
+                    if (data[pos] !== undefined) {
+                        input.value = "OP:" + data[pos];
+                    }
+                });
+            } catch (erro) {
+                console.error("Erro ao carregar valores:", erro);
+            }
+        }
+
+        // Enviar para CLP Estoque
+        async function enviarParaClpEstoque() {
+            const ipEstoque = document.getElementById("hostIpEstoque")?.value;
+            if (!ipEstoque) {
+                alert("IP do CLP de Estoque não informado.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/clp/enviar-estoque", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ipClp: ipEstoque })
+                });
+
+                if (response.ok) {
+                    console.log("Dados de estoque enviados com sucesso para o CLP!");
+                } else {
+                    alert("Erro ao enviar dados do estoque.");
+                }
+            } catch (erro) {
+                alert("Erro na comunicação com o servidor.");
+            }
+        }
+
+        // Enviar para CLP Expedição
+        async function enviarParaClpExpedicao() {
+            const ipExpedicao = document.getElementById("hostIpExpedicao")?.value;
+            if (!ipExpedicao) {
+                alert("IP do CLP de Expedição não informado.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/clp/enviar-expedicao", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ipClp: ipExpedicao })
+                });
+
+                if (response.ok) {
+                    console.log("Dados da expedição enviados com sucesso para o CLP!");
+                } else {
+                    alert("Erro ao enviar dados da expedição.");
+                }
+            } catch (erro) {
+                alert("Erro na comunicação com o servidor.");
+            }
+        }
+
+        // Você pode associar essas funções aos botões, por exemplo:
+        // document.getElementById("btnEnviarEstoque").addEventListener("click", enviarParaClpEstoque);
+        // document.getElementById("btnEnviarExpedicao").addEventListener("click", enviarParaClpExpedicao);
     });
-});
 </script>
+
 </body>
 </html>
